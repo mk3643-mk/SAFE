@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
+import StaffRegistrationModal from './StaffRegistrationModal.jsx';
 
 export default function HRPoolManager() {
-  const { hrPool, sites } = useStore();
+  const { hrPool, sites, removeStaff } = useStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getSiteName = (id) => sites.find(s => s.id === id)?.name || '미배치';
 
@@ -15,7 +17,10 @@ export default function HRPoolManager() {
           <h2 className="text-2xl font-bold text-gray-900">전사 인력풀 현황</h2>
           <p className="text-gray-500 mt-1">총 {hrPool.length}명의 전문 인력이 등록되어 있습니다.</p>
         </div>
-        <button className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-sm">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-sm"
+        >
           신규 인력 등록
         </button>
       </div>
@@ -27,7 +32,7 @@ export default function HRPoolManager() {
               <th className="px-8 py-4">성명 / 경력</th>
               <th className="px-8 py-4">구분 / 자격</th>
               <th className="px-8 py-4">현재 소속 현장</th>
-              <th className="px-8 py-4">상태</th>
+              <th className="px-8 py-4">상태 / 관리</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -65,17 +70,37 @@ export default function HRPoolManager() {
                   </div>
                 </td>
                 <td className="px-8 py-5">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                    staff.assignedSiteId ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'
-                  }`}>
-                    {staff.assignedSiteId ? '배치중' : '가용'}
-                  </span>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                      staff.assignedSiteId ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'
+                    }`}>
+                      {staff.assignedSiteId ? '배치중' : '가용'}
+                    </span>
+                    <button 
+                      onClick={() => {
+                        if (window.confirm(`${staff.name} 님의 인력 정보를 완전 삭제하시겠습니까?`)) {
+                          removeStaff(staff.id);
+                        }
+                      }}
+                      className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                      title="인력 정보 삭제"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <StaffRegistrationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

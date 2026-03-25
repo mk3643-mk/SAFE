@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 const INITIAL_HR_POOL = [
   // 을지로4가 오피스(13지구) - 1,321억
@@ -56,9 +57,11 @@ const INITIAL_SITES = [
   { id: 'S8', name: '광주운암산3단지', region: '호남권', type: 'ARCH', totalAmount: 2493, subAmt: 0, isSubProxy: false, endDate: '2027-09-30' },
 ];
 
-export const useStore = create((set) => ({
-  hrPool: INITIAL_HR_POOL,
-  sites: INITIAL_SITES,
+export const useStore = create(
+  persist(
+    (set) => ({
+      hrPool: INITIAL_HR_POOL,
+      sites: INITIAL_SITES,
   
   assignStaff: (staffId, siteId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
@@ -76,7 +79,42 @@ export const useStore = create((set) => ({
     hrPool: [...state.hrPool, { ...staff, id: `HR_${Date.now()}`, assignedSiteId: null }]
   })),
 
+  removeStaff: (staffId) => set((state) => ({
+    hrPool: state.hrPool.filter((staff) => staff.id !== staffId)
+  })),
+
   addSite: (site) => set((state) => ({
     sites: [...state.sites, { ...site, id: `S_${Date.now()}` }]
   })),
-}));
+
+  removeSite: (siteId) => set((state) => ({
+    sites: state.sites.filter((site) => site.id !== siteId),
+    hrPool: state.hrPool.map((staff) => 
+      staff.assignedSiteId === siteId ? { ...staff, assignedSiteId: null } : staff
+    )
+  })),
+
+  moveSite: (siteId, direction) => set((state) => {
+    const index = state.sites.findIndex(s => s.id === siteId);
+    if (index < 0) return state;
+    
+    const newSites = [...state.sites];
+    if (direction === 'up' && index > 0) {
+      [newSites[index - 1], newSites[index]] = [newSites[index], newSites[index - 1]];
+    } else if (direction === 'down' && index < newSites.length - 1) {
+      [newSites[index + 1], newSites[index]] = [newSites[index], newSites[index + 1]];
+    }
+    return { sites: newSites };
+  }),
+
+  reorderSites: (oldIndex, newIndex) => set((state) => {
+    const newSites = [...state.sites];
+    const [movedItem] = newSites.splice(oldIndex, 1);
+    newSites.splice(newIndex, 0, movedItem);
+    return { sites: newSites };
+  }),
+}),
+  {
+    name: 'safe-dashboard-storage',
+  }
+));

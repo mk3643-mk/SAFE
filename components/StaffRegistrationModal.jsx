@@ -1,0 +1,239 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useStore } from '../store/useStore.js';
+
+export default function StaffRegistrationModal({ isOpen, onClose }) {
+  const { addStaff } = useStore();
+  const [formData, setFormData] = useState({
+    name: '',
+    rank: '사원',
+    age: '',
+    phone: '',
+    licenses: '',
+    experience: 0,
+    residence: '',
+    empType: 'REGULAR',
+    licenseType: 'SAFETY'
+  });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // 자격증 문자열을 배열로 파싱
+    const parsedLicenses = formData.licenses.split(',').map(l => l.trim()).filter(Boolean);
+    
+    addStaff({
+      name: formData.name,
+      rank: formData.rank,
+      age: formData.age,
+      phone: formData.phone,
+      experience: Number(formData.experience),
+      licenses: parsedLicenses.length > 0 ? parsedLicenses : ['없음'],
+      residence: formData.residence,
+      empType: formData.empType,
+      licenseType: formData.licenseType
+    });
+    
+    onClose();
+    setFormData({
+      name: '',
+      rank: '사원',
+      age: '',
+      phone: '',
+      licenses: '',
+      experience: 0,
+      residence: '',
+      empType: 'REGULAR',
+      licenseType: 'SAFETY'
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900">신규 인력 등록</h3>
+            <p className="text-sm text-gray-500 mt-1">새로운 안전/보건 전문 인력을 인력풀에 등록합니다.</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white rounded-full">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* 기본 정보 */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">이름</label>
+              <input
+                required
+                type="text"
+                placeholder="예: 홍길동"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">직급</label>
+              <select
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
+                value={formData.rank}
+                onChange={(e) => setFormData({ ...formData, rank: e.target.value })}
+              >
+                <option>사원</option>
+                <option>주임</option>
+                <option>대리</option>
+                <option>과장</option>
+                <option>차장</option>
+                <option>부장</option>
+                <option>임원</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">나이</label>
+              <input
+                type="number"
+                placeholder="예: 35"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.age}
+                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">휴대폰</label>
+              <input
+                type="text"
+                placeholder="예: 010-1234-5678"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+
+            <div className="col-span-full">
+              <label className="block text-sm font-bold text-gray-700 mb-2">거주지</label>
+              <input
+                type="text"
+                placeholder="예: 서울시 강남구 역삼동"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.residence}
+                onChange={(e) => setFormData({ ...formData, residence: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">경력 (년차)</label>
+              <input
+                required
+                type="number"
+                placeholder="0"
+                min="0"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.experience}
+                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+              />
+            </div>
+
+            <div className="col-span-full">
+              <label className="block text-sm font-bold text-gray-700 mb-2">자격증</label>
+              <input
+                type="text"
+                placeholder="예: 건설안전기사, 산업위생관리산업기사 (쉼표로 구분)"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.licenses}
+                onChange={(e) => setFormData({ ...formData, licenses: e.target.value })}
+              />
+            </div>
+
+            {/* 자격 구분 및 고용 형태 */}
+            <div className="col-span-full border-t border-gray-100 pt-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">자격 구분 (배치 가능 분야)</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, licenseType: 'SAFETY' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.licenseType === 'SAFETY' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    안전관리자
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, licenseType: 'HEALTH' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.licenseType === 'HEALTH' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    보건관리자
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, licenseType: 'DUAL' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.licenseType === 'DUAL' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    통합/겸직
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">고용 형태</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, empType: 'REGULAR' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.empType === 'REGULAR' ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    정규직
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, empType: 'PROJECT' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.empType === 'PROJECT' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    프로젝트직
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-4 rounded-xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              className="flex-[2] py-4 rounded-xl font-bold text-white bg-gray-900 hover:bg-gray-800 transition-all shadow-lg active:scale-[0.98]"
+            >
+              인력 등록 완료
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

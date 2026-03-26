@@ -59,13 +59,17 @@ const INITIAL_SITES = [
 export const useStore = create((set, get) => ({
   hrPool: INITIAL_HR_POOL,
   sites: INITIAL_SITES,
+  siteDirectoryPdf: null,
   isLoaded: false,
   
   setInitialData: (data) => set({
     hrPool: data.hrPool || INITIAL_HR_POOL,
     sites: data.sites || INITIAL_SITES,
+    siteDirectoryPdf: data.siteDirectoryPdf || null,
     isLoaded: true
   }),
+  
+  setSiteDirectoryPdf: (pdfData) => set({ siteDirectoryPdf: pdfData }),
   
   assignStaff: (staffId, siteId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
@@ -142,7 +146,7 @@ if (typeof window !== 'undefined') {
     if (!state.isLoaded) return;
     
     // Only save if actual data changed (ignore isLoaded flag changes)
-    if (state.hrPool === prevState.hrPool && state.sites === prevState.sites) return;
+    if (state.hrPool === prevState.hrPool && state.sites === prevState.sites && state.siteDirectoryPdf === prevState.siteDirectoryPdf) return;
     
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
@@ -152,6 +156,7 @@ if (typeof window !== 'undefined') {
         body: JSON.stringify({
           hrPool: state.hrPool,
           sites: state.sites,
+          siteDirectoryPdf: state.siteDirectoryPdf
         }),
       }).catch(err => console.error('Failed to save to KV:', err));
     }, 1500); // 1.5초 딜레이 후 자동 저장 (성능 최적화)

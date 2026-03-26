@@ -216,12 +216,33 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
 }
 
 export default function SiteDashboard() {
-  const { hrPool, sites, unassignStaff, removeSite, reorderSites } = useStore();
+  const { hrPool, sites, siteDirectoryPdf, setSiteDirectoryPdf, unassignStaff, removeSite, reorderSites } = useStore();
   const [modal, setModal] = useState({ open: false, siteId: null, roleType: null });
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   
   const [siteDetailModal, setSiteDetailModal] = useState(null);
   const [staffDetailModal, setStaffDetailModal] = useState(null);
+
+  const handlePdfUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('PDF 파일만 업로드 가능합니다.');
+        return;
+      }
+      if (file.size > 3 * 1024 * 1024) {
+        alert('PDF 파일 크기는 최대 3MB 이하여야 합니다.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSiteDirectoryPdf(reader.result);
+        setIsPdfModalOpen(true); // 업로드 성공 시 바로 열람
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -256,30 +277,43 @@ export default function SiteDashboard() {
     <div className="space-y-8">
       {/* 상단 버튼 섹션 */}
       <div className="flex justify-end items-center gap-4">
-        {/* 현장주소록 업로드 버튼 */}
-        <div className="relative">
-          <input 
-            type="file" 
-            accept=".xlsx,.xls,.csv" 
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                alert(`선택된 파일: ${e.target.files[0].name}\n(엑셀 파일 및 주소록 파싱 기능은 개발예정입니다!)`);
-                e.target.value = null; // 초기화
-              }
-            }}
-            title="현장주소록 엑셀 업로드"
-          />
-          <button 
-            className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-emerald-500 hover:shadow-md transition-all active:scale-95 relative"
-          >
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        {/* 현장주소록 열람/업로드 영역 */}
+        <div className="flex gap-2 relative">
+          {siteDirectoryPdf && (
+            <button 
+              onClick={() => setIsPdfModalOpen(true)}
+              className="group flex items-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-95"
+            >
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-            </div>
-            <span>현장주소록 업로드</span>
-          </button>
+              <span>주소록 열람 (PDF)</span>
+            </button>
+          )}
+
+          <div className="relative">
+            <input 
+              type="file" 
+              accept=".pdf" 
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              onChange={handlePdfUpload}
+              title="현장주소록 PDF 업로드"
+              value=""
+            />
+            <button 
+              className={`group flex items-center gap-2 ${siteDirectoryPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-emerald-500 hover:shadow-md transition-all active:scale-95`}
+            >
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${siteDirectoryPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50' : 'bg-emerald-600 text-white group-hover:scale-110'}`}>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {siteDirectoryPdf 
+                    ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />}
+                </svg>
+              </div>
+              <span>{siteDirectoryPdf ? '파일 변경' : '현장주소록 업로드'}</span>
+            </button>
+          </div>
         </div>
 
         {/* 신규 등록 버튼 */}
@@ -347,6 +381,35 @@ export default function SiteDashboard() {
         staff={staffDetailModal}
         sites={sites}
       />
+
+      {/* PDF 열람 모달 */}
+      {isPdfModalOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 lg:p-10 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full h-full max-w-6xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-900 text-white">
+              <h3 className="font-bold flex items-center gap-2">
+                <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" /></svg>
+                현장 주소록 열람
+              </h3>
+              <button 
+                onClick={() => setIsPdfModalOpen(false)} 
+                className="text-gray-400 hover:text-white p-1 rounded-full transition-colors hover:bg-white/10"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 w-full bg-gray-100">
+              <iframe 
+                src={siteDirectoryPdf} 
+                className="w-full h-full border-none"
+                title="현장 주소록 PDF"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

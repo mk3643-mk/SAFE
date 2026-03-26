@@ -35,25 +35,31 @@ export default function Page() {
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+          <nav className="flex items-center gap-2 bg-gray-100 p-1.5 border border-gray-200 rounded-2xl shadow-inner relative z-10">
             <button 
               onClick={() => setActiveTab('dashboard')}
-              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-8 py-3 rounded-xl text-base font-black transition-all duration-300 ${
                 activeTab === 'dashboard' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-1 ring-blue-700 scale-100' 
+                  : 'text-gray-500 hover:bg-white/60 hover:text-blue-600 scale-[0.98]'
               }`}
             >
+              <svg className={`w-5 h-5 ${activeTab === 'dashboard' ? 'text-white' : 'text-gray-400 group-hover:text-blue-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
               현장 대시보드
             </button>
             <button 
               onClick={() => setActiveTab('hr-pool')}
-              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-8 py-3 rounded-xl text-base font-black transition-all duration-300 ${
                 activeTab === 'hr-pool' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-1 ring-blue-700 scale-100' 
+                  : 'text-gray-500 hover:bg-white/60 hover:text-blue-600 scale-[0.98]'
               }`}
             >
+              <svg className={`w-5 h-5 ${activeTab === 'hr-pool' ? 'text-white' : 'text-gray-400 group-hover:text-blue-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
               인력풀 관리
             </button>
           </nav>

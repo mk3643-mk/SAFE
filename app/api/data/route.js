@@ -13,7 +13,7 @@ export async function GET() {
   try {
     if (!kv) {
       console.warn('KV Database not connected.');
-      return NextResponse.json({ isNull: true, hrPool: null, sites: null, siteDirectoryPdf: null });
+      return NextResponse.json({ isNull: true, hrPool: null, sites: null, siteDirectoryPdf: null, dbMissing: true });
     }
 
     const data = await kv.get('safe-dashboard-data') || { hrPool: null, sites: null };
@@ -40,26 +40,30 @@ export async function GET() {
 export async function POST(request) {
   try {
     if (!kv) {
-      throw new Error("Missing KV_REST_API_URL or UPSTASH_REDIS_REST_URL environment variables. 데이터베이스가 연결되지 않았습니다.");
+      throw new Error("[DB_MISSING] Vercel 관리자 화면에서 데이터베이스(Upstash Redis)가 프로젝트에 정상적으로 연결(Connect)되지 않았습니다.");
     }
 
     const body = await request.json();
-    const { hrPool, sites, siteDirectoryPdf } = body;
-
-    // Save standard arrays (since images are now <50kb, this easily fits in 1MB limit)
-    await kv.set('safe-dashboard-data', { hrPool, sites });
-
-    // Save PDF using Chunking (since PDFs can be >1MB, bypass limit via splitting)
-    if (siteDirectoryPdf) {
-      const chunks = siteDirectoryPdf.match(/.{1,800000}/g); // 800,000 chars per chunk
-      if (chunks) {
-        await kv.set('safe-pdf-count', chunks.length);
-        for (let i = 0; i < chunks.length; i++) {
-          await kv.set(`safe-pdf-${i}`, chunks[i]);
+    
+    if (body.type === 'data') {
+      // 1. 일반 텍스트 데이터 (인력/현장) 초경량화 동기화
+      await kv.set('safe-dashboard-data', { hrPool: body.hrPool, sites: body.sites });
+    } else if (body.type === 'pdf') {
+      // 2. 대용량 PDF 데이터 독립 동기화 (분할 저장)
+      if (body.siteDirectoryPdf) {
+        const chunks = body.siteDirectoryPdf.match(/.{1,800000}/g); 
+        if (chunks) {
+          await kv.set('safe-pdf-count', chunks.length);
+          for (let i = 0; i < chunks.length; i++) {
+            await kv.set(`safe-pdf-${i}`, chunks[i]);
+          }
         }
+      } else {
+        await kv.set('safe-pdf-count', 0);
       }
-    } else if (siteDirectoryPdf === null) {
-      await kv.set('safe-pdf-count', 0);
+    } else {
+      // 하위 호환성
+      await kv.set('safe-dashboard-data', { hrPool: body.hrPool, sites: body.sites });
     }
 
     return NextResponse.json({ success: true });

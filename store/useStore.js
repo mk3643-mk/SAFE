@@ -69,7 +69,22 @@ export const useStore = create((set, get) => ({
     isLoaded: true
   }),
   
-  setSiteDirectoryPdf: (pdfData) => set({ siteDirectoryPdf: pdfData }),
+  setSiteDirectoryPdf: (pdfData) => {
+    set({ siteDirectoryPdf: pdfData });
+    // PDF는 용량이 크므로 일반 동기화와 분리하여 즉각 개별 업데이트 처리
+    if (typeof window !== 'undefined') {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'pdf', siteDirectoryPdf: pdfData }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) alert('PDF 저장 실패: ' + data.error);
+      })
+      .catch(err => console.error('PDF sync failed', err));
+    }
+  },
   
   assignStaff: (staffId, siteId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
@@ -154,7 +169,7 @@ if (typeof window !== 'undefined') {
     if (!state.isLoaded) return;
     
     // Only save if actual data changed (ignore isLoaded flag changes)
-    if (state.hrPool === prevState.hrPool && state.sites === prevState.sites && state.siteDirectoryPdf === prevState.siteDirectoryPdf) return;
+    if (state.hrPool === prevState.hrPool && state.sites === prevState.sites) return;
     
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
@@ -162,16 +177,20 @@ if (typeof window !== 'undefined') {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: 'data',
           hrPool: state.hrPool,
-          sites: state.sites,
-          siteDirectoryPdf: state.siteDirectoryPdf
+          sites: state.sites
         }),
       })
       .then(res => res.json())
       .then(data => {
         if (data.error) {
           console.error('KV POST Server Error:', data.error);
-          alert('데이터베이스 저장 중 오류가 발생했습니다. (파일 용량 초과 등)\n에러: ' + data.error);
+          if (data.error.includes('[DB_MISSING]')) {
+            alert('⚠️ 저장이 차단되었습니다: Vercel에서 데이터베이스(Upstash)가 아직 정상 연결되지 않았습니다. Storage 설정과 Redeploy를 꼭 확인해 주세요.');
+          } else {
+            alert('데이터 저장 중 오류가 발생했습니다.\n상세: ' + data.error);
+          }
         }
       })
       .catch(err => {

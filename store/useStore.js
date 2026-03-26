@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 const INITIAL_HR_POOL = [
   // 을지로4가 오피스(13지구) - 1,321억
@@ -57,11 +56,16 @@ const INITIAL_SITES = [
   { id: 'S8', name: '광주운암산3단지', region: '호남권', type: 'ARCH', totalAmount: 2493, subAmt: 0, isSubProxy: false, endDate: '2027-09-30' },
 ];
 
-export const useStore = create(
-  persist(
-    (set) => ({
-      hrPool: INITIAL_HR_POOL,
-      sites: INITIAL_SITES,
+export const useStore = create((set, get) => ({
+  hrPool: INITIAL_HR_POOL,
+  sites: INITIAL_SITES,
+  isLoaded: false,
+  
+  setInitialData: (data) => set({
+    hrPool: data.hrPool || INITIAL_HR_POOL,
+    sites: data.sites || INITIAL_SITES,
+    isLoaded: true
+  }),
   
   assignStaff: (staffId, siteId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
@@ -113,8 +117,43 @@ export const useStore = create(
     newSites.splice(newIndex, 0, movedItem);
     return { sites: newSites };
   }),
-}),
-  {
-    name: 'safe-dashboard-storage',
-  }
-));
+}));
+
+// Sync with Vercel KV API
+if (typeof window !== 'undefined') {
+  // Load initial data
+  fetch('/api/data')
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.isNull && !data.error) {
+        useStore.getState().setInitialData(data);
+      } else {
+        useStore.setState({ isLoaded: true });
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to load data from KV:', err);
+      useStore.setState({ isLoaded: true });
+    });
+
+  // Subscribe and save changes to KV
+  let saveTimeout;
+  useStore.subscribe((state, prevState) => {
+    if (!state.isLoaded) return;
+    
+    // Only save if actual data changed (ignore isLoaded flag changes)
+    if (state.hrPool === prevState.hrPool && state.sites === prevState.sites) return;
+    
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hrPool: state.hrPool,
+          sites: state.sites,
+        }),
+      }).catch(err => console.error('Failed to save to KV:', err));
+    }, 1500); // 1.5초 딜레이 후 자동 저장 (성능 최적화)
+  });
+}

@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
 import StaffRegistrationModal from './StaffRegistrationModal.jsx';
+import StaffDetailModal from './StaffDetailModal.jsx';
 
 export default function HRPoolManager() {
   const { hrPool, sites, removeStaff } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailModalStaff, setDetailModalStaff] = useState(null);
 
   const getSiteName = (id) => sites.find(s => s.id === id)?.name || '미배치';
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
       <div className="p-8 border-b border-gray-100 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">전사 인력풀 현황</h2>
@@ -37,11 +39,19 @@ export default function HRPoolManager() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {hrPool.map(staff => (
-              <tr key={staff.id} className="hover:bg-gray-50/50 transition-colors group">
+              <tr 
+                key={staff.id} 
+                className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                onClick={() => setDetailModalStaff(staff)}
+              >
                 <td className="px-8 py-5">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-bold text-gray-700">
-                      {staff.name[0]}
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center font-bold text-gray-700 overflow-hidden shadow-sm">
+                      {staff.photo ? (
+                        <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
+                      ) : (
+                        staff.name[0]
+                      )}
                     </div>
                     <div>
                       <p className="font-bold text-gray-900">
@@ -77,7 +87,8 @@ export default function HRPoolManager() {
                       {staff.assignedSiteId ? '배치중' : '가용'}
                     </span>
                     <button 
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (window.confirm(`${staff.name} 님의 인력 정보를 완전 삭제하시겠습니까?`)) {
                           removeStaff(staff.id);
                         }
@@ -100,6 +111,13 @@ export default function HRPoolManager() {
       <StaffRegistrationModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
+      />
+      
+      <StaffDetailModal 
+        isOpen={!!detailModalStaff} 
+        onClose={() => setDetailModalStaff(null)} 
+        staff={detailModalStaff}
+        sites={sites}
       />
     </div>
   );

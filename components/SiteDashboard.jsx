@@ -6,6 +6,8 @@ import { calculateRequiredStaff } from '../utils/calculator.js';
 import { validateAssignment } from '../utils/validator.js';
 import AssignmentModal from './AssignmentModal.jsx';
 import SiteRegistrationModal from './SiteRegistrationModal.jsx';
+import SiteDetailModal from './SiteDetailModal.jsx';
+import StaffDetailModal from './StaffDetailModal.jsx';
 import {
   DndContext,
   closestCenter,
@@ -23,7 +25,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal }) {
+function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, onSiteClick, onStaffClick }) {
   const {
     attributes,
     listeners,
@@ -58,9 +60,12 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal }
           <div {...attributes} {...listeners} className="mt-1 flex-shrink-0 cursor-grab text-gray-300 hover:text-gray-500 active:cursor-grabbing hover:bg-gray-50 p-2 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500" title="드래그하여 순서 변경">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <div className="cursor-pointer group-hover/click:text-blue-600 transition-colors" onClick={() => onSiteClick(site)}>
+            <h2 className="text-2xl font-bold text-gray-900 group-hover/click:text-gray-900 flex items-center gap-2 hover:text-blue-600">
               {site.name}
+              <svg className="w-5 h-5 text-gray-300 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               <span className="text-xs font-normal bg-gray-100 text-gray-500 px-2 py-1 rounded-full">{site.region}</span>
             </h2>
             <p className="text-gray-500 mt-1 flex items-center gap-2">
@@ -154,14 +159,22 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal }
         <div className="space-y-2">
           {[...assignedSafety, ...assignedHealth].length > 0 ? (
             [...assignedSafety, ...assignedHealth].map(staff => (
-              <div key={staff.id} className="flex justify-between items-center bg-white border border-gray-100 px-4 py-3 rounded-xl shadow-sm hover:border-gray-200 transition-colors">
+              <div 
+                key={staff.id} 
+                className="flex justify-between items-center bg-white border border-gray-100 px-4 py-3 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+                onClick={() => onStaffClick(staff)}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 text-xs">
-                    {staff.name[0]}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
+                    {staff.photo ? (
+                      <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
+                    ) : (
+                      staff.name[0]
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-gray-800">{staff.name}</span>
+                      <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{staff.name}</span>
                       <span className="text-[10px] text-gray-400 font-medium">{staff.rank}</span>
                       <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase font-medium">
                         {staff.licenseType}
@@ -180,8 +193,11 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal }
                     </div>
                   )}
                   <button 
-                    onClick={() => handleUnassign(staff, site)} 
-                    className="text-gray-300 hover:text-red-500 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnassign(staff, site);
+                    }} 
+                    className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors z-10 relative"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -203,6 +219,9 @@ export default function SiteDashboard() {
   const { hrPool, sites, unassignStaff, removeSite, reorderSites } = useStore();
   const [modal, setModal] = useState({ open: false, siteId: null, roleType: null });
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
+  
+  const [siteDetailModal, setSiteDetailModal] = useState(null);
+  const [staffDetailModal, setStaffDetailModal] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -295,6 +314,8 @@ export default function SiteDashboard() {
                 removeSite={removeSite}
                 handleUnassign={handleUnassign}
                 setModal={setModal}
+                onSiteClick={setSiteDetailModal}
+                onStaffClick={setStaffDetailModal}
               />
             ))}
           </div>
@@ -311,6 +332,20 @@ export default function SiteDashboard() {
       <SiteRegistrationModal
         isOpen={isRegModalOpen}
         onClose={() => setIsRegModalOpen(false)}
+      />
+
+      <SiteDetailModal 
+        isOpen={!!siteDetailModal} 
+        onClose={() => setSiteDetailModal(null)} 
+        site={siteDetailModal} 
+        hrPool={hrPool}
+      />
+
+      <StaffDetailModal 
+        isOpen={!!staffDetailModal} 
+        onClose={() => setStaffDetailModal(null)} 
+        staff={staffDetailModal}
+        sites={sites}
       />
     </div>
   );

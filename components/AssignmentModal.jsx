@@ -31,17 +31,26 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
           {availableStaff.length > 0 ? (
             availableStaff.map(staff => (
               <div key={staff.id} className="group flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-gray-800">{staff.name}</p>
-                    <span className="text-xs text-gray-400">{staff.rank}</span>
-                    {staff.licenseType === 'DUAL' && (
-                      <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium">중복자격</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-shrink-0 items-center justify-center font-bold text-white text-sm shadow-inner overflow-hidden">
+                    {staff.photo ? (
+                      <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
+                    ) : (
+                      staff.name[0]
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    경력 {staff.experience}년 · {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'}
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-gray-800">{staff.name}</p>
+                      <span className="text-xs text-gray-400">{staff.rank}</span>
+                      {staff.licenseType === 'DUAL' && (
+                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium">중복자격</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      경력 {staff.experience}년 · {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'}
+                    </p>
+                  </div>
                 </div>
                 <button 
                   onClick={() => {

@@ -166,7 +166,18 @@ if (typeof window !== 'undefined') {
           sites: state.sites,
           siteDirectoryPdf: state.siteDirectoryPdf
         }),
-      }).catch(err => console.error('Failed to save to KV:', err));
-    }, 1500); // 1.5초 딜레이 후 자동 저장 (성능 최적화)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error('KV POST Server Error:', data.error);
+          alert('데이터베이스 저장 중 오류가 발생했습니다. (파일 용량 초과 등)\n에러: ' + data.error);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to save to KV:', err);
+        alert('네트워크 연결 오류 또는 서버 오류로 저장이 실패했습니다.');
+      });
+    }, 500); // 0.5초 딜레이 후 쾌속 저장
   });
 }

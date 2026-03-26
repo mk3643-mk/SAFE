@@ -134,8 +134,8 @@ export const useStore = create((set, get) => ({
 // Sync with Vercel KV API
 if (typeof window !== 'undefined') {
   // Load initial data
-  fetch('/api/data')
-    .then((res) => res.json())
+    fetch('/api/data', { cache: 'no-store' })
+      .then((res) => res.json())
     .then((data) => {
       if (!data.isNull && !data.error) {
         useStore.getState().setInitialData(data);

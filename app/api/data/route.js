@@ -1,11 +1,21 @@
-import { kv } from '@vercel/kv';
+import { createClient } from '@vercel/kv';
 import { NextResponse } from 'next/server';
+
+const kvUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const kvToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const kv = kvUrl && kvToken ? createClient({ url: kvUrl, token: kvToken }) : null;
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 10;
 
 export async function GET() {
   try {
+    if (!kv) {
+      console.warn('KV Database not connected.');
+      return NextResponse.json({ isNull: true, hrPool: null, sites: null, siteDirectoryPdf: null });
+    }
+
     const data = await kv.get('safe-dashboard-data') || { hrPool: null, sites: null };
 
     // Fetch PDF chunks
@@ -29,6 +39,10 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    if (!kv) {
+      throw new Error("Missing KV_REST_API_URL or UPSTASH_REDIS_REST_URL environment variables. 데이터베이스가 연결되지 않았습니다.");
+    }
+
     const body = await request.json();
     const { hrPool, sites, siteDirectoryPdf } = body;
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { calculateExperienceYears } from '../utils/calculator.js';
 
 const INITIAL_HR_POOL = [
   // 을지로4가 오피스(13지구) - 1,321억
@@ -62,12 +63,20 @@ export const useStore = create((set, get) => ({
   siteDirectoryPdf: null,
   isLoaded: false,
   
-  setInitialData: (data) => set({
-    hrPool: data.hrPool || INITIAL_HR_POOL,
-    sites: data.sites || INITIAL_SITES,
-    siteDirectoryPdf: data.siteDirectoryPdf || null,
-    isLoaded: true
-  }),
+  setInitialData: (data) => {
+    // 로드 시점에 경력 시작일이 있는 인력은 최신 년차로 자동 업데이트
+    const processedHrPool = (data.hrPool || INITIAL_HR_POOL).map(staff => ({
+      ...staff,
+      experience: staff.careerStartDate ? calculateExperienceYears(staff.careerStartDate) : staff.experience
+    }));
+    
+    set({
+      hrPool: processedHrPool,
+      sites: data.sites || INITIAL_SITES,
+      siteDirectoryPdf: data.siteDirectoryPdf || null,
+      isLoaded: true
+    });
+  },
   
   setSiteDirectoryPdf: (pdfData) => {
     set({ siteDirectoryPdf: pdfData });

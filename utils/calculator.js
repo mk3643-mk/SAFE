@@ -24,3 +24,26 @@ export const calculateRequiredStaff = (site) => {
     needSenior: site.totalAmt >= 1500 // 1500억 이상 고경력자 필수 여부
   };
 };
+
+/**
+ * 입사일(경력 시작일)을 기준으로 현재 년차를 자동 계산 (만 나이와 동일한 방식 연산)
+ */
+export const calculateExperienceYears = (startDate) => {
+  if (!startDate) return 0;
+  
+  const start = new Date(startDate);
+  const now = new Date();
+  
+  // 유효하지 않은 날짜 처리
+  if (isNaN(start.getTime())) return 0;
+
+  let years = now.getFullYear() - start.getFullYear();
+  
+  // 아직 입사월/일이 지나지 않았으면 1년 차감 (만 연차 기준)
+  if (now.getMonth() < start.getMonth() || (now.getMonth() === start.getMonth() && now.getDate() < start.getDate())) {
+    years--;
+  }
+  
+  // 최소 0년차, 혹은 본사 기준 +1년차 처리 시 여기서 변경 가능 (현재는 만 계산)
+  return years > 0 ? years : 0;
+};

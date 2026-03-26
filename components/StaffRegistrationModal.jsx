@@ -2,20 +2,22 @@
 
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
+import { calculateExperienceYears } from '../utils/calculator.js';
 
 export default function StaffRegistrationModal({ isOpen, onClose }) {
   const { addStaff } = useStore();
   const [formData, setFormData] = useState({
     name: '',
     rank: '사원',
-    age: '',
-    phone: '',
-    licenses: '',
-    experience: 0,
-    residence: '',
     empType: 'REGULAR',
     licenseType: 'SAFETY',
-    photo: null
+    experience: '',
+    careerStartDate: '',
+    licenses: '',
+    phone: '',
+    residence: '',
+    photo: null,
+    age: ''
   });
 
   const handlePhotoUpload = (e) => {
@@ -56,7 +58,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // 자격증 문자열을 배열로 파싱
-    const parsedLicenses = formData.licenses.split(',').map(l => l.trim()).filter(Boolean);
+    const parsedLicenses = formData.licenses ? formData.licenses.split(',').map(l => l.trim()).filter(Boolean) : [];
     
     addStaff({
       name: formData.name,
@@ -68,7 +70,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       residence: formData.residence,
       empType: formData.empType,
       licenseType: formData.licenseType,
-      photo: formData.photo
+      photo: formData.photo,
+      careerStartDate: formData.careerStartDate
     });
     
     onClose();
@@ -78,7 +81,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       age: '',
       phone: '',
       licenses: '',
-      experience: 0,
+      experience: '',
+      careerStartDate: '',
       residence: '',
       empType: 'REGULAR',
       licenseType: 'SAFETY',
@@ -196,17 +200,37 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">경력 (년차)</label>
-              <input
-                required
-                type="number"
-                placeholder="0"
-                min="0"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-              />
+            <div className="col-span-full grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">경력 시작일</label>
+                <input
+                  type="date"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  value={formData.careerStartDate || ''}
+                  onChange={(e) => {
+                    const dateVal = e.target.value;
+                    const calcExp = dateVal ? calculateExperienceYears(dateVal) : formData.experience;
+                    setFormData({...formData, careerStartDate: dateVal, experience: calcExp});
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">경력 (년차)</label>
+                <input
+                  required
+                  type="number"
+                  placeholder="0"
+                  min="0"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  value={formData.experience !== undefined ? formData.experience : ''}
+                  onChange={(e) => {
+                    const years = Number(e.target.value);
+                    const currentYear = new Date().getFullYear();
+                    const autoStartDate = new Date(currentYear - years, 0, 2).toISOString().split('T')[0];
+                    setFormData({...formData, experience: years, careerStartDate: autoStartDate});
+                  }}
+                />
+              </div>
             </div>
 
             <div className="col-span-full">

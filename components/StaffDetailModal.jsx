@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore.js';
+import { calculateExperienceYears } from '../utils/calculator.js';
 
 export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
   const { updateStaff } = useStore();
@@ -133,11 +134,38 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">경력 (년차)</label>
-                  <input type="number" required min="0" className="w-full px-3 py-2 border rounded-xl" value={formData.experience !== undefined ? formData.experience : ''} onChange={e => setFormData({...formData, experience: e.target.value})} />
+              <div className="grid grid-cols-5 gap-4">
+                <div className="col-span-3">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">경력 시작일</label>
+                  <input 
+                    type="date" 
+                    className="w-full px-3 py-2 border rounded-xl" 
+                    value={formData.careerStartDate || ''} 
+                    onChange={e => {
+                      const dateVal = e.target.value;
+                      const calcExp = dateVal ? calculateExperienceYears(dateVal) : formData.experience;
+                      setFormData({...formData, careerStartDate: dateVal, experience: calcExp});
+                    }} 
+                  />
                 </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">총 경력 (년차)</label>
+                  <input 
+                    type="number" 
+                    required min="0" 
+                    className="w-full px-3 py-2 border rounded-xl" 
+                    value={formData.experience !== undefined ? formData.experience : ''} 
+                    onChange={e => {
+                      const years = Number(e.target.value);
+                      const currentYear = new Date().getFullYear();
+                      const autoStartDate = new Date(currentYear - years, 0, 2).toISOString().split('T')[0];
+                      setFormData({...formData, experience: years, careerStartDate: autoStartDate});
+                    }} 
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">연락처</label>
                   <input type="text" className="w-full px-3 py-2 border rounded-xl" value={formData.phone || ''} onChange={e => setFormData({...formData, phone: e.target.value})} />

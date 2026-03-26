@@ -91,6 +91,10 @@ export const useStore = create((set, get) => ({
     hrPool: state.hrPool.filter((staff) => staff.id !== staffId)
   })),
 
+  updateStaff: (staffId, updatedData) => set((state) => ({
+    hrPool: state.hrPool.map((staff) => staff.id === staffId ? { ...staff, ...updatedData } : staff)
+  })),
+
   addSite: (site) => set((state) => ({
     sites: [...state.sites, { ...site, id: `S_${Date.now()}` }]
   })),
@@ -100,6 +104,10 @@ export const useStore = create((set, get) => ({
     hrPool: state.hrPool.map((staff) => 
       staff.assignedSiteId === siteId ? { ...staff, assignedSiteId: null } : staff
     )
+  })),
+
+  updateSite: (siteId, updatedData) => set((state) => ({
+    sites: state.sites.map((site) => site.id === siteId ? { ...site, ...updatedData } : site)
   })),
 
   moveSite: (siteId, direction) => set((state) => {

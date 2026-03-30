@@ -1,3 +1,4 @@
+import { isSeniorQualified } from './calculator.js';
 /**
  * 인력 이동 및 배치 제한 검증 로직
  */
@@ -16,12 +17,12 @@ export const validateAssignment = (staff, site, action = 'ASSIGN') => {
       }
     }
 
-    // 2. 대형 현장 필수 고경력자(7년↑) 이동 제한
-    if (site.totalAmount >= 1500 && staff.experience >= 7) {
+    // 2. 대형 현장 필수 고경력자 이동 제한
+    if (site.totalAmount >= 1500 && isSeniorQualified(staff)) {
       // 실제로는 대체 인력이 있어야 하지만, 여기서는 기본 제한으로 처리
       return {
         valid: false,
-        message: "⚠️ 1,500억 이상 대형 현장의 필수 고경력자(7년↑)는 이동이 제한됩니다."
+        message: "⚠️ 1,500억 이상 대형 현장의 필수 고경력자(기술사/지도사/년차 충족 기사)는 이동이 제한됩니다."
       };
     }
   }

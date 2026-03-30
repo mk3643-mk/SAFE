@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateRequiredStaff } from '../utils/calculator.js';
+import { calculateRequiredStaff, isSeniorQualified } from '../utils/calculator.js';
 import { validateAssignment } from '../utils/validator.js';
 import AssignmentModal from './AssignmentModal.jsx';
 import SiteRegistrationModal from './SiteRegistrationModal.jsx';
@@ -45,7 +45,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
   const requirements = calculateRequiredStaff(site);
   const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL'));
   const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.licenseType === 'HEALTH');
-  const assignedSeniors = assignedSafety.filter(h => h.experience >= 7);
+  const assignedSeniors = assignedSafety.filter(h => isSeniorQualified(h));
   
   const needSafety = Math.max(0, requirements.safety - assignedSafety.length);
   const needHealth = Math.max(0, requirements.health - assignedHealth.length);

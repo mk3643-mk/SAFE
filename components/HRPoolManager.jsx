@@ -57,7 +57,9 @@ export default function HRPoolManager() {
                       <p className="font-bold text-gray-900">
                         {staff.name} <span className="text-xs font-medium text-gray-400 ml-1">{staff.rank}</span>
                       </p>
-                      <p className="text-xs text-gray-500">경력 {staff.experience}년차</p>
+                      <p className="text-xs text-gray-500">
+                        {staff.age ? `만 ${staff.age}세` : '-'} · 경력 {staff.experience}년차
+                      </p>
                     </div>
                   </div>
                 </td>

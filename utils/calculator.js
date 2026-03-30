@@ -75,24 +75,60 @@ export const calculateRequiredStaff = (site) => {
 };
 
 /**
- * 입사일(경력 시작일)을 기준으로 현재 년차를 자동 계산 (만 나이와 동일한 방식 연산)
+ * 날짜를 기준으로 현재 만 나이(또는 만 연차)를 계산 (전역 시스템 기준일 반영 가능)
  */
-export const calculateExperienceYears = (startDate) => {
-  if (!startDate) return 0;
+export const calculateAge = (birthDate) => {
+  if (!birthDate) return 0;
   
-  const start = new Date(startDate);
-  const now = new Date();
+  const start = new Date(birthDate);
+  const now = new Date('2026-03-30'); // 시스템 기준일 (현재 날짜)
   
-  // 유효하지 않은 날짜 처리
   if (isNaN(start.getTime())) return 0;
 
-  let years = now.getFullYear() - start.getFullYear();
+  let age = now.getFullYear() - start.getFullYear();
   
-  // 아직 입사월/일이 지나지 않았으면 1년 차감 (만 연차 기준)
+  // 아직 해당 월/일이 지나지 않았으면 1세 차감
   if (now.getMonth() < start.getMonth() || (now.getMonth() === start.getMonth() && now.getDate() < start.getDate())) {
-    years--;
+    age--;
   }
   
-  // 최소 0년차, 혹은 본사 기준 +1년차 처리 시 여기서 변경 가능 (현재는 만 계산)
-  return years > 0 ? years : 0;
+  return age > 0 ? age : 0;
+};
+
+/**
+ * 입사일(경력 시작일)을 기준으로 현재 년차를 자동 계산 (만 계산 방식)
+ */
+export const calculateExperienceYears = (startDate) => {
+  return calculateAge(startDate);
+};
+
+/**
+ * 사용자가 정의한 '경력 7년차 이상(Senior)' 자격 충족 여부 판단
+ * 1. 건설/산업안전기사: 7년 이상
+ * 2. 산업안전지도사/건설안전기술사: 즉시 충족
+ * 3. 건설/산업안전산업기사: 10년 이상
+ */
+export const isSeniorQualified = (staff) => {
+  if (!staff || !staff.licenses) return false;
+  
+  const licenseList = Array.isArray(staff.licenses) ? staff.licenses : [];
+  const exp = Number(staff.experience || 0);
+
+  // 1. 기술사/지도사는 경력 무관 즉시 충족
+  if (licenseList.some(l => l.includes('기술사') || l.includes('지도사'))) {
+    return true;
+  }
+
+  // 2. 기사 급은 7년 이상
+  if (licenseList.some(l => l.includes('기사') && !l.includes('산업기사'))) {
+    return exp >= 7;
+  }
+
+  // 3. 산업기사 급은 10년 이상
+  if (licenseList.some(l => l.includes('산업기사'))) {
+    return exp >= 10;
+  }
+
+  // 4. 기타(기본 '건설안전' 등)는 7년 기준으로 처리
+  return exp >= 7;
 };

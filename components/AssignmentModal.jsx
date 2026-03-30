@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useStore } from '../store/useStore.js';
+import { isSeniorQualified } from '../utils/calculator.js';
 
 export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
   const { hrPool, assignStaff } = useStore();
@@ -45,6 +46,9 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
                       <span className="text-xs text-gray-400">{staff.rank}</span>
                       {staff.licenseType === 'DUAL' && (
                         <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium">중복자격</span>
+                      )}
+                      {isSeniorQualified(staff) && (
+                        <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-black border border-indigo-200">고경력자</span>
                       )}
                     </div>
                     <p className="text-sm text-gray-500 mt-1">

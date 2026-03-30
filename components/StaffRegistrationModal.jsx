@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateExperienceYears } from '../utils/calculator.js';
+import { calculateExperienceYears, calculateAge } from '../utils/calculator.js';
 
 export default function StaffRegistrationModal({ isOpen, onClose }) {
   const { addStaff } = useStore();
@@ -17,7 +17,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     phone: '',
     residence: '',
     photo: null,
-    age: ''
+    birthDate: '',
+    age: 0
   });
 
   const handlePhotoUpload = (e) => {
@@ -63,7 +64,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     addStaff({
       name: formData.name,
       rank: formData.rank,
-      age: formData.age,
+      age: Number(formData.age),
+      birthDate: formData.birthDate,
       phone: formData.phone,
       experience: Number(formData.experience),
       licenses: parsedLicenses.length > 0 ? parsedLicenses : ['없음'],
@@ -78,7 +80,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     setFormData({
       name: '',
       rank: '사원',
-      age: '',
+      birthDate: '',
+      age: 0,
       phone: '',
       licenses: '',
       experience: '',
@@ -168,13 +171,28 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">나이</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">생년월일</label>
               <input
-                type="number"
-                placeholder="예: 35"
+                required
+                type="date"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.birthDate}
+                onChange={(e) => {
+                  const birth = e.target.value;
+                  const calcAge = birth ? calculateAge(birth) : 0;
+                  setFormData({ ...formData, birthDate: birth, age: calcAge });
+                }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">만나이</label>
+              <input
+                readOnly
+                type="number"
+                placeholder="0"
+                className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-500 transition-all outline-none cursor-not-allowed font-bold"
                 value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
               />
             </div>
 

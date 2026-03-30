@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateExperienceYears } from '../utils/calculator.js';
+import { calculateExperienceYears, calculateAge } from '../utils/calculator.js';
 
 export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
   const { updateStaff } = useStore();
@@ -167,6 +167,26 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">생년월일</label>
+                  <input 
+                    type="date" 
+                    className="w-full px-3 py-2 border rounded-xl" 
+                    value={formData.birthDate || ''} 
+                    onChange={e => {
+                      const birth = e.target.value;
+                      const calcAge = birth ? calculateAge(birth) : 0;
+                      setFormData({...formData, birthDate: birth, age: calcAge});
+                    }} 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">만나이</label>
+                  <input readOnly type="number" className="w-full px-3 py-2 border rounded-xl bg-gray-50 text-gray-500 font-bold" value={formData.age || 0} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">연락처</label>
                   <input type="text" className="w-full px-3 py-2 border rounded-xl" value={formData.phone || ''} onChange={e => setFormData({...formData, phone: e.target.value})} />
                 </div>
@@ -212,6 +232,17 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">총 경력</p>
                   <p className="text-base font-black text-gray-900">{staff.experience}년차</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">만 나이</p>
+                  <p className="text-base font-black text-gray-900">{staff.age ? `${staff.age}세` : '-'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-100/50 p-3 rounded-xl border border-dashed border-gray-200">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">생년월일</p>
+                  <p className="text-sm font-bold text-gray-800">{staff.birthDate || '-'}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">현재 상태</p>

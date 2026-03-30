@@ -192,7 +192,7 @@ export default function HRPoolManager() {
               <th className="px-8 py-5">성명 / 경력</th>
               <th className="px-8 py-5">고용형태</th>
               <th className="px-8 py-5">직무</th>
-              <th className="px-8 py-5">자격</th>
+              <th className="px-8 py-5 w-[300px]">자격</th>
               <th className="px-8 py-5">현재 소속 현장</th>
               <th className="px-8 py-5">상태 / 관리</th>
             </tr>
@@ -247,8 +247,10 @@ export default function HRPoolManager() {
                     {staff.licenseType === 'SAFETY' ? '안전' : staff.licenseType === 'HEALTH' ? '보건' : '안전/보건'}
                   </span>
                 </td>
-                <td className="px-8 py-6">
-                  <p className="text-base font-bold text-gray-700">{staff.licenses.join(', ')}</p>
+                <td className="px-8 py-6 w-[300px]">
+                  <p className="text-sm font-bold text-gray-700 w-full whitespace-normal break-words leading-relaxed line-clamp-2" title={staff.licenses.join(', ')}>
+                    {staff.licenses.join(', ')}
+                  </p>
                 </td>
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-2.5">

@@ -6,7 +6,8 @@ export const validateAssignment = (staff, site, action = 'ASSIGN') => {
   const today = new Date('2026-03-17'); // 현재 테스트 기준일
   
   if (action === 'UNASSIGN') {
-    // 1. 프로젝트직 이동 불가 로직
+    // 1. (제거된 로직) 프로젝트직 이동 불가 로직 - 시각적 배지만 유지하고 기능적으로는 해제 허용
+    /* 
     if (staff.empType === 'PROJECT') {
       const endDate = new Date(site.endDate);
       if (today < endDate) {
@@ -16,6 +17,7 @@ export const validateAssignment = (staff, site, action = 'ASSIGN') => {
         };
       }
     }
+    */
 
     // 2. 대형 현장 필수 고경력자 이동 제한
     if (site.totalAmount >= 1500 && isSeniorQualified(staff)) {

@@ -12,9 +12,11 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     totalAmount: 0,
     subAmt: 0,
     subAppointmentType: 'NONE',
+    demoStartDate: '',
+    demoEndDate: '',
+    mainStartDate: '2026-03-01',
+    mainEndDate: '',
     isDemolition: false,
-    startDate: '2026-03-01',
-    endDate: ''
   });
 
   if (!isOpen) return null;
@@ -34,7 +36,11 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
       totalAmount: 0,
       subAmt: 0,
       subAppointmentType: 'NONE',
-      endDate: ''
+      demoStartDate: '',
+      demoEndDate: '',
+      mainStartDate: '2026-03-01',
+      mainEndDate: '',
+      isDemolition: false,
     });
   };
 
@@ -118,81 +124,11 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">착공일</label>
-              <input
-                required
-                type="date"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">준공 예정일</label>
-              <input
-                required
-                type="date"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-              />
-            </div>
-
-            <div className="col-span-full bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
-              <label className="block text-sm font-bold text-blue-900 mb-3">협력사(수급인) 선임 방식</label>
-              <div className="flex gap-2 mb-4">
-                <button 
-                  type="button" 
-                  onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} 
-                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
-                    (formData.subAppointmentType === 'NONE' || !formData.subAppointmentType) ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
-                  }`}
-                >
-                  대상 없음
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} 
-                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
-                    formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
-                  }`}
-                >
-                  협력사 직접 선임
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} 
-                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
-                    formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
-                  }`}
-                >
-                  원도급사 대리 선임
-                </button>
-              </div>
-              
-              {(formData.subAppointmentType === 'DIRECT' || formData.subAppointmentType === 'PROXY') && (
-                <div className="animate-in slide-in-from-top-2 duration-200">
-                  <label className="block text-xs font-bold text-blue-800 mb-2">대상 협력사 공사 금액 합계 (억 원)</label>
-                  <input
-                    required
-                    type="number"
-                    placeholder="예: 120"
-                    className="w-full px-4 py-2 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
-                    value={formData.subAmt}
-                    onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
-                  />
-                  <p className="text-[10px] text-blue-600 mt-2 italic">* 입력된 금액만큼 원도급사 기준 금액에서 차감되어 계산됩니다. (시나리오 6, 8 반영)</p>
-                </div>
-              )}
-            </div>
-
-            <div className="col-span-full bg-red-50/50 p-5 rounded-2xl border border-red-100">
-              <div className="flex items-center justify-between">
+            <div className="col-span-full border-t border-gray-100 pt-6">
+              <div className="flex items-center justify-between bg-red-50/50 p-4 rounded-2xl border border-red-100 mb-6">
                 <div>
                   <p className="text-sm font-bold text-red-900">철거공사 포함 여부</p>
-                  <p className="text-xs text-red-600 mt-1">철거공사가 포함된 경우 안전관리자 선임 인원이 50% 감면됩니다.</p>
+                  <p className="text-xs text-red-600 mt-1">철거공사가 있는 경우 해당 기간 동안 50% 감면이 적용됩니다.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -203,6 +139,45 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
                 </label>
+              </div>
+
+              {formData.isDemolition && (
+                <div className="grid grid-cols-2 gap-4 p-5 bg-red-50/20 rounded-2xl border border-dashed border-red-200 mb-6 animate-in slide-in-from-top-2">
+                  <div className="col-span-full text-xs font-bold text-red-800 mb-2">철거공사 기간 설정</div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">철거 착공일</label>
+                    <input type="date" className="w-full px-4 py-2 rounded-xl border border-gray-200" value={formData.demoStartDate} onChange={e => setFormData({...formData, demoStartDate: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1">철거 종료일</label>
+                    <input type="date" className="w-full px-4 py-2 rounded-xl border border-gray-200" value={formData.demoEndDate} onChange={e => setFormData({...formData, demoEndDate: e.target.value})} />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-6 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                <div className="col-span-full text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">본공사 기간 설정</div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">본공사 착공일</label>
+                  <input
+                    required
+                    type="date"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                    value={formData.mainStartDate}
+                    onChange={(e) => setFormData({ ...formData, mainStartDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">본공사 준공일</label>
+                  <input
+                    required
+                    type="date"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                    value={formData.mainEndDate}
+                    onChange={(e) => setFormData({ ...formData, mainEndDate: e.target.value })}
+                  />
+                </div>
+                <p className="col-span-full text-[10px] text-gray-400 mt-1 italic">* 입력하신 본공사 기간의 전후 15% 시점에 50% 선임 기준이 자동 적용됩니다.</p>
               </div>
             </div>
           </div>

@@ -184,13 +184,15 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             </svg>
           </button>
           {site.subAppointmentType === 'PROXY' && (
-            <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-amber-100 mt-1 mr-2 inline-block">원도급 대리 선임 적용</span>
+            <span className="bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ring-amber-100 mt-1 mr-1.5 inline-block">원도급 대리</span>
           )}
           {site.subAppointmentType === 'DIRECT' && (
-            <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-purple-100 mt-1 mr-2 inline-block">협력사 직접 선임</span>
+            <span className="bg-purple-50 text-purple-700 text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ring-purple-100 mt-1 mr-1.5 inline-block">협력사 직접</span>
           )}
-          {requirements.isReducedPhase && (
-            <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-blue-100 mt-1 inline-block text-center mr-2">공정 초기/말기 (50% 감면)</span>
+          {requirements.currentPhase !== 'NONE' && (
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ring-1 mt-1 inline-block text-center mr-1.5 ${requirements.isReducedPhase ? 'bg-orange-50 text-orange-700 ring-orange-100' : 'bg-blue-50 text-blue-700 ring-blue-100'}`}>
+              {requirements.phaseLabel} {requirements.isReducedPhase ? '(50% 감면)' : '(100% 선임)'}
+            </span>
           )}
         </div>
       </div>

@@ -4,24 +4,47 @@
 export const calculateRequiredStaff = (site) => {
   const { totalAmount, subAmt, isSubProxy, type, isDemolition, startDate, endDate } = site;
   
-  // 0. 기본 변수 설정
+  // 0. 기본 변수 및 기간 설정
   const today = new Date('2026-03-30'); // 시스템 기준일 (현재 날짜)
-  const start = new Date(startDate || '2026-01-01');
-  const end = new Date(endDate || '2026-12-31');
   
-  // 공사기간 계산 (일수 단위)
-  const totalDays = Math.max(1, (end - start) / (1000 * 60 * 60 * 24));
-  const elapsedDays = Math.max(0, (today - start) / (1000 * 60 * 60 * 24));
-  const remainingDays = Math.max(0, (end - today) / (1000 * 60 * 60 * 24));
-  
-  const isInitialPhase = elapsedDays <= totalDays * 0.15;
-  const isFinalPhase = remainingDays <= totalDays * 0.15;
-  const isReducedPhase = isInitialPhase || isFinalPhase;
+  const demoStart = site.demoStartDate ? new Date(site.demoStartDate) : null;
+  const demoEnd = site.demoEndDate ? new Date(site.demoEndDate) : null;
+  const mainStart = site.mainStartDate ? new Date(site.mainStartDate) : new Date(startDate || '2026-01-01');
+  const mainEnd = site.mainEndDate ? new Date(site.mainEndDate) : new Date(endDate || '2026-12-31');
 
-  // 15% 시점 날짜 계산
-  const fifteenPercentMs = totalDays * 0.15 * 24 * 60 * 60 * 1000;
-  const initialPhaseEnd = new Date(start.getTime() + fifteenPercentMs);
-  const finalPhaseStart = new Date(end.getTime() - fifteenPercentMs);
+  // 현재 어느 단계에 있는지 판단
+  let currentPhase = 'NONE';
+  let isReducedPhase = false;
+  let phaseLabel = '공사 전/후';
+
+  if (demoStart && demoEnd && today >= demoStart && today <= demoEnd) {
+    currentPhase = 'DEMOLITION';
+    phaseLabel = '철거 공사';
+    isReducedPhase = true; // 철거 기간은 무조건 50% 감면
+  } else if (today >= mainStart && today <= mainEnd) {
+    currentPhase = 'MAIN';
+    phaseLabel = '본 공사';
+    
+    const mainTotalDays = Math.max(1, (mainEnd - mainStart) / (1000 * 60 * 60 * 24));
+    const mainElapsedDays = Math.max(0, (today - mainStart) / (1000 * 60 * 60 * 24));
+    const mainRemainingDays = Math.max(0, (mainEnd - today) / (1000 * 60 * 60 * 24));
+    
+    const isInitial15 = mainElapsedDays <= mainTotalDays * 0.15;
+    const isFinal15 = mainRemainingDays <= mainTotalDays * 0.15;
+    
+    if (isInitial15 || isFinal15) {
+      isReducedPhase = true;
+      phaseLabel = isInitial15 ? '본공사 초기 (15%)' : '본공사 말기 (15%)';
+    } else {
+      phaseLabel = '본공사 진행 중';
+    }
+  }
+
+  // 15% 시점 날짜 계산 (본공사 기준)
+  const mainTotalDays = Math.max(1, (mainEnd - mainStart) / (1000 * 60 * 60 * 24));
+  const fifteenPercentMs = mainTotalDays * 0.15 * 24 * 60 * 60 * 1000;
+  const initialPhaseEnd = new Date(mainStart.getTime() + fifteenPercentMs);
+  const finalPhaseStart = new Date(mainEnd.getTime() - fifteenPercentMs);
 
   // 6, 7, 8번 기준: 수급인 공사 금액 차감 로직
   // 수급인이 직접 선임하든 원도급사가 대리 선임하든, 원도급사 기준 금액에서는 해당 금액을 제외함
@@ -47,19 +70,18 @@ export const calculateRequiredStaff = (site) => {
     if (netAmt >= 1500) { safetyReq = 3; seniorReq = 1; }
   }
 
-  // 3-①. 전후 15% 기간 50% 감면 (착공/준공 15% 시점)
+  // 50% 인원 감면 적용 (철거공사 기간 또는 본공사 전후 15%)
   if (isReducedPhase) {
-    safetyReq = Math.max(1, Math.ceil(safetyReq * 0.5)); // 최소 1명은 유지 (관례상)
-    
-    // 3-②, ③. 경력자(7년↑) 15% 기간 필수 포함 로직
-    if (netAmt >= 1500 && netAmt < 3000) seniorReq = 1;
-    else if (netAmt >= 3000) seniorReq = 1; // 3000억 이상 4900억 미만 50%(1명) 필수
-  }
-
-  // 5번 기준: 철거공사 포함 시 50% 감면
-  if (isDemolition) {
     safetyReq = Math.max(1, Math.ceil(safetyReq * 0.5));
-    seniorReq = Math.max(0, Math.ceil(seniorReq * 0.5));
+    
+    // 본공사 15% 기간은 경력자 필수 포함 로직 적용
+    if (currentPhase === 'MAIN') {
+      if (netAmt >= 1500 && netAmt < 3000) seniorReq = 1;
+      else if (netAmt >= 3000) seniorReq = 1;
+    } else if (currentPhase === 'DEMOLITION') {
+      // 철거 기간은 경력자 요건도 50% 감면 (사용자 요건: 50%만 배치)
+      seniorReq = Math.max(0, Math.floor(seniorReq * 0.5));
+    }
   }
 
   // 8번 기준: 대리 선임 시 협력사 1명분을 가산
@@ -78,7 +100,10 @@ export const calculateRequiredStaff = (site) => {
     safety: safetyReq,
     health: healthReq,
     senior: seniorReq,
+    senior: seniorReq,
     isReducedPhase,
+    currentPhase,
+    phaseLabel,
     initialPhaseEnd: initialPhaseEnd.toISOString().split('T')[0],
     finalPhaseStart: finalPhaseStart.toISOString().split('T')[0],
     mainSafetyReq: safetyReq - proxyReq, // 원도급사 본분

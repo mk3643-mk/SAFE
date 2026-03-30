@@ -99,27 +99,51 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                   <input type="number" min="0" className="w-full px-3 py-2 border rounded-xl" value={formData.subAmt || ''} onChange={e => setFormData({...formData, subAmt: e.target.value})} />
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">준공 예정일</label>
-                <input type="date" required className="w-full px-3 py-2 border rounded-xl" value={formData.endDate || ''} onChange={e => setFormData({...formData, endDate: e.target.value})} />
-              </div>
-              <div className="col-span-full bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                <label className="block text-xs font-bold text-blue-900 mb-2">협력사(수급인) 선임 방식</label>
-                <div className="flex gap-2 mb-3">
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'NONE' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>대상 없음</button>
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>협력사 직접 선임</button>
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>원도급사 대리 선임</button>
+              <div className="grid grid-cols-1 gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                <p className="text-[10px] font-bold text-gray-400 uppercase">본공사 기간</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">착공일</label>
+                    <input type="date" required className="w-full px-3 py-1.5 border rounded-lg text-sm" value={formData.mainStartDate || ''} onChange={e => setFormData({...formData, mainStartDate: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 mb-1">준공 예정일</label>
+                    <input type="date" required className="w-full px-3 py-1.5 border rounded-lg text-sm" value={formData.mainEndDate || ''} onChange={e => setFormData({...formData, mainEndDate: e.target.value})} />
+                  </div>
                 </div>
-                {formData.subAppointmentType !== 'NONE' && (
-                  <div className="mt-2">
-                    <label className="block text-[10px] font-bold text-blue-800 mb-1">대상 협력사 공사 금액 합계 (억 원)</label>
-                    <input type="number" className="w-full px-3 py-1.5 border rounded-lg text-sm" value={formData.subAmt || ''} onChange={e => setFormData({...formData, subAmt: e.target.value})} />
+              </div>
+
+              <div className="col-span-full bg-red-50/50 p-4 rounded-2xl border border-red-100">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-red-900">철거공사 포함</label>
+                  <input type="checkbox" checked={formData.isDemolition || false} onChange={e => setFormData({...formData, isDemolition: e.target.checked})} className="w-4 h-4 text-red-600 rounded" />
+                </div>
+                {formData.isDemolition && (
+                  <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-1">
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-800 mb-1">철거 착공</label>
+                      <input type="date" className="w-full px-3 py-1.5 border border-red-200 rounded-lg text-sm" value={formData.demoStartDate || ''} onChange={e => setFormData({...formData, demoStartDate: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-red-800 mb-1">철거 종료</label>
+                      <input type="date" className="w-full px-3 py-1.5 border border-red-200 rounded-lg text-sm" value={formData.demoEndDate || ''} onChange={e => setFormData({...formData, demoEndDate: e.target.value})} />
+                    </div>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <input type="checkbox" id="isDemolition" checked={formData.isDemolition || false} onChange={e => setFormData({...formData, isDemolition: e.target.checked})} className="w-4 h-4 text-red-600 rounded" />
-                <label htmlFor="isDemolition" className="text-sm font-bold text-red-700">철거공사 포함 여부 (50% 감면)</label>
+              <div className="col-span-full bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                <label className="block text-xs font-bold text-blue-900 mb-2">협력사(수급인) 선임 방식</label>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'NONE' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>대상 없음</button>
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>협력사 직접</button>
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>원도급 대리</button>
+                </div>
+                {formData.subAppointmentType !== 'NONE' && (
+                  <div className="mt-3">
+                    <label className="block text-[10px] font-bold text-blue-800 mb-1">협력사 공사 금액 합계 (억 원)</label>
+                    <input type="number" className="w-full px-3 py-1.5 border border-blue-200 rounded-lg text-sm" value={formData.subAmt || ''} onChange={e => setFormData({...formData, subAmt: e.target.value})} />
+                  </div>
+                )}
               </div>
             </form>
           ) : (
@@ -135,23 +159,29 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                 </div>
                 <div className="grid grid-cols-2 gap-4 col-span-2">
                   <div className="bg-gray-50 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-gray-400 uppercase">착공일</p>
-                    <p className="text-lg font-black text-gray-900 mt-1">{site.startDate || '-'}</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase">본공사 착공</p>
+                    <p className="text-sm font-black text-gray-900 mt-1">{site.mainStartDate || '-'}</p>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-gray-400 uppercase">준공 예정일</p>
-                    <p className="text-lg font-black text-gray-900 mt-1">{site.endDate || '-'}</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase">본공사 준공</p>
+                    <p className="text-sm font-black text-gray-900 mt-1">{site.mainEndDate || '-'}</p>
                   </div>
+                  {site.isDemolition && (
+                    <div className="col-span-2 bg-red-50/50 p-3 rounded-xl border border-red-100">
+                      <p className="text-[10px] font-bold text-red-600 uppercase mb-1">철거공사 기간</p>
+                      <p className="text-xs font-black text-red-900">{site.demoStartDate} ~ {site.demoEndDate}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-span-2 grid grid-cols-2 gap-4 mt-1">
                   <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">초기 15% 감면 기간</p>
-                    <p className="text-sm font-black text-blue-900">{site.startDate} ~ {requirements.initialPhaseEnd}</p>
+                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">본공사 초기 15% 감면</p>
+                    <p className="text-[11px] font-black text-blue-900">{site.mainStartDate} ~ {requirements.initialPhaseEnd}</p>
                   </div>
                   <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">말기 15% 감면 기간</p>
-                    <p className="text-sm font-black text-blue-900">{requirements.finalPhaseStart} ~ {site.endDate}</p>
+                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">본공사 말기 15% 감면</p>
+                    <p className="text-[11px] font-black text-blue-900">{requirements.finalPhaseStart} ~ {site.mainEndDate}</p>
                   </div>
                 </div>
               </div>

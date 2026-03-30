@@ -8,7 +8,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
   const { addStaff } = useStore();
   const [formData, setFormData] = useState({
     name: '',
-    rank: '사원',
+    rank: '주임',
     empType: 'REGULAR',
     licenseType: 'SAFETY',
     experience: '',
@@ -79,7 +79,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     onClose();
     setFormData({
       name: '',
-      rank: '사원',
+      rank: '주임',
       birthDate: '',
       age: 0,
       phone: '',
@@ -160,13 +160,10 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
                 value={formData.rank}
                 onChange={(e) => setFormData({ ...formData, rank: e.target.value })}
               >
-                <option>사원</option>
                 <option>주임</option>
                 <option>대리</option>
                 <option>과장</option>
-                <option>차장</option>
                 <option>부장</option>
-                <option>임원</option>
               </select>
             </div>
 
@@ -274,7 +271,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
                       formData.licenseType === 'SAFETY' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}
                   >
-                    안전관리자
+                    안전
                   </button>
                   <button
                     type="button"
@@ -283,7 +280,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
                       formData.licenseType === 'HEALTH' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}
                   >
-                    보건관리자
+                    보건
                   </button>
                   <button
                     type="button"
@@ -292,7 +289,7 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
                       formData.licenseType === 'DUAL' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}
                   >
-                    통합/겸직
+                    안전/보건
                   </button>
                 </div>
               </div>

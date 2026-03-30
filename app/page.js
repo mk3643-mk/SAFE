@@ -4,10 +4,38 @@ import React, { useState } from 'react';
 import SiteDashboard from '../components/SiteDashboard.jsx';
 import HRPoolManager from '../components/HRPoolManager.jsx';
 import { useStore } from '../store/useStore';
+import { calculateRequiredStaff } from '../utils/calculator.js';
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const isLoaded = useStore((state) => state.isLoaded);
+  const { sites, hrPool } = useStore();
+
+  // 현장 통계 계산
+  let totalSafetyTO = 0;
+  let totalHealthTO = 0;
+  let totalSafetyAssigned = 0;
+  let totalHealthAssigned = 0;
+  let totalSafetyNeeded = 0;
+  let totalHealthNeeded = 0;
+
+  sites.forEach(site => {
+    const req = calculateRequiredStaff(site);
+    totalSafetyTO += req.safety;
+    totalHealthTO += req.health;
+    
+    const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL'));
+    const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.licenseType === 'HEALTH');
+    
+    totalSafetyAssigned += assignedSafety.length;
+    totalHealthAssigned += assignedHealth.length;
+    
+    const needSafety = Math.max(0, req.safety - assignedSafety.length);
+    const needHealth = Math.max(0, req.health - assignedHealth.length);
+    
+    totalSafetyNeeded += needSafety;
+    totalHealthNeeded += needHealth;
+  });
 
   if (!isLoaded) {
     return (
@@ -89,16 +117,48 @@ export default function Page() {
                 : '구성원별 자격사항 및 현재 배치 상태를 통합 관리합니다.'}
             </p>
           </div>
-          
-          <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Today</span>
-              <span className="text-sm font-black text-gray-900 uppercase">2026. 03. 17</span>
+
+          {activeTab === 'dashboard' && (
+            <div className="flex items-center gap-10 bg-white px-10 py-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-center group">
+                <p className="text-base font-black text-gray-500 uppercase tracking-wider mb-2.5">전체 TO (법정)</p>
+                <div className="flex items-center justify-center gap-5">
+                  <span className="text-4xl font-black text-gray-900 leading-none">{totalSafetyTO + totalHealthTO}</span>
+                  <div className="flex flex-col items-start gap-1 border-l border-gray-200 pl-5 py-0.5">
+                    <span className="text-base font-black text-gray-400 whitespace-nowrap leading-tight">안전 {totalSafetyTO}</span>
+                    <span className="text-base font-black text-gray-400 whitespace-nowrap leading-tight">보건 {totalHealthTO}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-px h-12 bg-gray-100"></div>
+              <div className="text-center group">
+                <p className="text-base font-black text-blue-500 uppercase tracking-wider mb-2.5">현재 배치</p>
+                <div className="flex items-center justify-center gap-5">
+                  <span className="text-4xl font-black text-blue-600 leading-none">{totalSafetyAssigned + totalHealthAssigned}</span>
+                  <div className="flex flex-col items-start gap-1 border-l border-blue-100 pl-5 py-0.5">
+                    <span className="text-base font-black text-blue-400 whitespace-nowrap leading-tight">안전 {totalSafetyAssigned}</span>
+                    <span className="text-base font-black text-blue-400 whitespace-nowrap leading-tight">보건 {totalHealthAssigned}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-px h-12 bg-gray-100"></div>
+              <div className="text-center group">
+                <p className="text-base font-black text-red-500 uppercase tracking-wider mb-2.5">추가 필요</p>
+                <div className="flex items-center justify-center gap-5">
+                  <span className="text-4xl font-black text-red-600 leading-none">{totalSafetyNeeded + totalHealthNeeded}</span>
+                  <div className="flex flex-col items-start gap-1 border-l border-red-100 pl-5 py-0.5">
+                    <span className="text-base font-black text-red-400 whitespace-nowrap leading-tight">안전 {totalSafetyNeeded}</span>
+                    <span className="text-base font-black text-red-400 whitespace-nowrap leading-tight">보건 {totalHealthNeeded}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="w-px h-8 bg-gray-100"></div>
+          )}
+          
+          <div className="flex items-center bg-white px-12 py-6 rounded-3xl shadow-sm border border-gray-100 shrink-0">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</span>
-              <span className="text-sm font-black text-green-600 uppercase">Connected</span>
+              <span className="text-base font-black text-gray-400 uppercase tracking-widest leading-tight">Today</span>
+              <span className="text-3xl font-black text-gray-900 uppercase whitespace-nowrap tracking-tight mt-2.5">2026. 03. 17</span>
             </div>
           </div>
         </div>

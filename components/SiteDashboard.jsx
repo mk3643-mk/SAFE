@@ -28,37 +28,54 @@ import { CSS } from '@dnd-kit/utilities';
 function StaffRow({ staff, site, onStaffClick, handleUnassign, handleRoleToggle }) {
   return (
     <div 
-      className="flex justify-between items-center bg-white border border-gray-100 px-4 py-3 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+      className="flex justify-between items-center bg-white border border-gray-100 px-6 py-4 rounded-2xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
       onClick={() => onStaffClick(staff)}
     >
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-base overflow-hidden shadow-sm">
           {staff.photo ? (
             <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
           ) : (
             staff.name[0]
           )}
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{staff.name}</span>
-            <span className="text-[10px] text-gray-400 font-medium">{staff.rank}</span>
-            {staff.licenseType === 'DUAL' && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRoleToggle(staff);
-                }}
-                className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-black border border-purple-200 hover:bg-purple-200 transition-colors shadow-sm"
-                title="직무 변경 (안전 <-> 보건)"
-              >
-                직무전환
-              </button>
-            )}
+        <div className="flex-1">
+          <div className="flex items-center gap-4 flex-wrap">
+            <span className="font-black text-xl text-gray-900 group-hover:text-blue-600 transition-colors whitespace-nowrap">{staff.name}</span>
+            <span className="text-lg text-gray-500 font-black whitespace-nowrap">{staff.rank}</span>
+            <div className="flex items-center gap-2.5">
+              <span className={`px-2.5 py-1 rounded-lg text-xs font-black border shadow-sm ${
+                staff.empType === 'PROJECT' ? 'bg-orange-50 text-orange-700 border-orange-100' : 'bg-indigo-50 text-indigo-700 border-indigo-100'
+              }`}>
+                {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'}
+              </span>
+              <span className="text-base font-black text-gray-400">
+                {staff.experience}년차
+              </span>
+              {staff.experience >= 7 && (
+                <span className="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-black border border-amber-200/50 shadow-sm whitespace-nowrap">7년↑</span>
+              )}
+              <span className={`px-2.5 py-1 rounded-lg text-xs font-black border shadow-sm ${
+                staff.licenseType === 'SAFETY' ? 'bg-blue-50 border-blue-100 text-blue-700' : 
+                staff.licenseType === 'HEALTH' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 
+                'bg-purple-50 border-purple-100 text-purple-700'
+              }`}>
+                {staff.licenseType === 'SAFETY' ? '안전' : staff.licenseType === 'HEALTH' ? '보건' : '안전/보건'}
+              </span>
+              {staff.licenseType === 'DUAL' && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRoleToggle(staff);
+                  }}
+                  className="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg font-black border border-purple-200 hover:bg-purple-200 transition-colors shadow-sm"
+                  title="직무 변경 (안전 <-> 보건)"
+                >
+                  직무전환
+                </button>
+              )}
+            </div>
           </div>
-          <span className="text-xs text-gray-500">
-            {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'} · {staff.experience}년차
-          </span>
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -145,8 +162,16 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
     >
       <div className="p-8 border-b border-gray-50 flex justify-between items-start group">
         <div className="flex gap-4">
-          <div {...attributes} {...listeners} className="mt-1 flex-shrink-0 cursor-grab text-gray-300 hover:text-gray-500 active:cursor-grabbing hover:bg-gray-50 p-2 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500" title="드래그하여 순서 변경">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+          <div 
+            {...attributes} 
+            {...listeners} 
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing bg-gray-50 border border-gray-100 text-gray-300 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 p-2.5 rounded-xl transition-all shadow-sm group/handle" 
+            title="드래그하여 순서 변경"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/handle:scale-110 transition-transform">
+              <circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="19" r="1.5"/>
+              <circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+            </svg>
           </div>
           <div className="cursor-pointer group-hover/click:text-blue-600 transition-colors" onClick={() => onSiteClick(site)}>
             <h2 className="text-2xl font-bold text-gray-900 group-hover/click:text-gray-900 flex items-center gap-2 hover:text-blue-600">
@@ -156,22 +181,32 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               </svg>
               <span className="text-sm font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">{site.region}</span>
             </h2>
-            <p className="text-gray-500 mt-2 flex flex-wrap items-center gap-y-2 gap-x-3">
-              <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                <span className="text-sm font-bold text-gray-700 font-sans">총 공사비 {site.totalAmount.toLocaleString()}억 원</span>
+            <p className="text-gray-500 mt-3 flex flex-wrap items-center gap-y-2 gap-x-3">
+              {site.managerName && (
+                <span className="flex items-center gap-2.5 bg-gray-100/80 px-4 py-1.5 rounded-xl border border-gray-200 shadow-sm">
+                  <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-base font-black text-gray-700">{site.managerName} 소장</span>
+                </span>
+              )}
+              <span className="flex items-center gap-2.5 bg-gray-50 px-4 py-1.5 rounded-xl border border-gray-100 shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+                <span className="text-base font-black text-gray-800 font-sans">총 공사비 {site.totalAmount.toLocaleString()}억 원</span>
               </span>
               {Number(site.subAmt) > 0 && (
-                <span className="text-xs text-blue-700 font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-sm">
+                <span className="text-sm text-blue-700 font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-sm">
                   기준 금액: {requirements.netAmt.toLocaleString()}억 원 (협력사 {site.subAmt}억 차감)
                 </span>
               )}
-              {site.managerName && (
-                <span className="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-                  {site.managerName} 소장
-                </span>
-              )}
             </p>
+            {requirements.currentPhase !== 'NONE' && (
+              <div className="mt-3">
+                <span className={`text-base font-black px-4 py-1.5 rounded-xl border shadow-sm inline-block ${requirements.isReducedPhase ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200'}`}>
+                  {requirements.phaseLabel} {requirements.isReducedPhase ? '(50% 감면)' : '(100% 선임)'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -194,34 +229,29 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           {site.subAppointmentType === 'DIRECT' && (
             <span className="bg-purple-100 text-purple-800 text-xs font-black px-3 py-1.5 rounded-full border border-purple-200 shadow-sm mt-1 mr-1.5 inline-block">협력사 직접</span>
           )}
-          {requirements.currentPhase !== 'NONE' && (
-            <span className={`text-xs font-black px-3 py-1.5 rounded-full border shadow-sm mt-1 inline-block text-center mr-1.5 ${requirements.isReducedPhase ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200'}`}>
-              {requirements.phaseLabel} {requirements.isReducedPhase ? '(50% 감면)' : '(100% 선임)'}
-            </span>
-          )}
         </div>
       </div>
 
       <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/50">
         {/* 안전관리자 섹션 */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-sm font-bold text-gray-700">안전관리자 현황</p>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-5">
+              <p className="text-base font-black text-gray-800">안전관리자 현황</p>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded font-bold">법정: {requirements.safety}명</span>
+                <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-black border border-blue-100 shadow-sm">법정: {requirements.safety}명</span>
                 {requirements.proxyReq > 0 && (
                   <span className="text-xs text-blue-500 font-bold">(원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})</span>
                 )}
               </div>
             </div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-3 flex-1 bg-gray-100 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="h-full bg-blue-500 transition-all" 
+                className="h-full bg-blue-500 transition-all shadow-[0_0_8px_rgba(59,130,246,0.5)]" 
                 style={{ width: `${Math.min(100, (assignedSafety.length / requirements.safety) * 100)}%` }}
               ></div>
             </div>
-            <span className="text-sm font-bold text-blue-600">{assignedSafety.length} / {requirements.safety}</span>
+            <span className="text-base font-black text-blue-600">{assignedSafety.length} / {requirements.safety}</span>
           </div>
 
           {/* 경력직(Senior) 배치 현황 추가 */}
@@ -247,43 +277,51 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           )}
 
           {needSafety > 0 && (
-            <p className="text-red-500 font-bold text-xs mb-3 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
-              {needSafety}명 추가 배치 필요
-            </p>
+            <div className="bg-red-50 border border-red-100 px-4 py-3 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-sm">
+              <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              <p className="text-red-700 font-black text-base">
+                {needSafety}명 추가 배치 필요
+              </p>
+            </div>
           )}
           <button 
             onClick={() => setModal({open: true, siteId: site.id, roleType: 'SAFETY'})} 
-            className="w-full py-2.5 rounded-xl text-xs font-bold bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+            className="w-full py-4 rounded-xl text-base font-black bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-md active:scale-[0.98]"
           >
             인력풀에서 찾기
           </button>
         </div>
 
         {/* 보건관리자 섹션 */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <p className="text-sm font-bold text-gray-700">보건관리자 현황</p>
-            <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded">법정: {requirements.health}명</span>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-5">
+            <p className="text-base font-black text-gray-800">보건관리자 현황</p>
+            <span className="text-sm bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-black border border-emerald-100 shadow-sm">법정: {requirements.health}명</span>
           </div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-3 flex-1 bg-gray-100 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="h-full bg-emerald-500 transition-all" 
+                className="h-full bg-emerald-500 transition-all shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
                 style={{ width: `${(assignedHealth.length / requirements.health) * 100}%` }}
               ></div>
             </div>
-            <span className="text-sm font-bold text-emerald-600">{assignedHealth.length} / {requirements.health}</span>
+            <span className="text-base font-black text-emerald-600">{assignedHealth.length} / {requirements.health}</span>
           </div>
           {needHealth > 0 && (
-            <p className="text-red-500 font-bold text-xs mb-3 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>
-              {needHealth}명 추가 배치 필요
-            </p>
+            <div className="bg-red-50 border border-red-100 px-4 py-3 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-sm">
+              <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+              <p className="text-red-700 font-black text-base">
+                {needHealth}명 추가 배치 필요
+              </p>
+            </div>
           )}
           <button 
             onClick={() => setModal({open: true, siteId: site.id, roleType: 'HEALTH'})} 
-            className="w-full py-2.5 rounded-xl text-xs font-bold bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+            className="w-full py-4 rounded-xl text-base font-black bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-md active:scale-[0.98]"
           >
             인력풀에서 찾기
           </button>
@@ -297,8 +335,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             {/* 원도급사분 */}
             {(safetyMain.length > 0 || (assignedSafety.length > 0 && requirements.mainSafetyReq > 0)) && (
               <div>
-                <p className="text-xs flex items-center gap-1 font-bold text-blue-600 mb-2 bg-blue-100 px-2.5 py-1 rounded-lg w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <p className="text-base flex items-center gap-1.5 font-black text-blue-600 mb-3 bg-blue-100/80 px-4 py-2 rounded-xl w-fit shadow-sm border border-blue-200">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
                   원도급사 선임 ({safetyMain.length} / {requirements.mainSafetyReq})
                 </p>
                 <div className="space-y-2">
@@ -309,7 +347,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
                     />
                   ))}
                   {safetyMain.length === 0 && requirements.mainSafetyReq > 0 && (
-                    <p className="text-[10px] text-gray-300 italic px-2">배치 대기 중...</p>
+                    <p className="text-sm text-gray-400 font-bold italic px-3 py-1">배치 대기 중...</p>
                   )}
                 </div>
               </div>
@@ -318,8 +356,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             {/* 대리선임분 */}
             {(safetyProxy.length > 0 || requirements.proxyReq > 0) && (
               <div>
-                <p className="text-xs flex items-center gap-1 font-bold text-amber-600 mb-2 bg-amber-100 px-2.5 py-1 rounded-lg w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <p className="text-base flex items-center gap-1.5 font-black text-amber-700 mb-3 bg-amber-100/80 px-4 py-2 rounded-xl w-fit shadow-sm border border-amber-200">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
                   협력사 대리선임 ({safetyProxy.length} / {requirements.proxyReq})
                 </p>
                 <div className="space-y-2">
@@ -330,7 +368,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
                     />
                   ))}
                   {safetyProxy.length === 0 && (
-                    <p className="text-[10px] text-gray-300 italic px-2">배치가 필요한 대리 선임분입니다.</p>
+                    <p className="text-sm text-gray-400 font-bold italic px-3 py-1">배치가 필요한 대리 선임분입니다.</p>
                   )}
                 </div>
               </div>
@@ -339,8 +377,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             {/* 직접선임분 */}
             {safetyDirect.length > 0 && (
               <div>
-                <p className="text-xs flex items-center gap-1 font-bold text-purple-600 mb-2 bg-purple-100 px-2.5 py-1 rounded-lg w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                <p className="text-base flex items-center gap-1.5 font-black text-purple-700 mb-3 bg-purple-100/80 px-4 py-2 rounded-xl w-fit shadow-sm border border-purple-200">
+                  <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
                   협력사 직접선임 ({safetyDirect.length})
                 </p>
                 <div className="space-y-2">
@@ -357,7 +395,10 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             {/* 미분류 (기존 데이터) */}
             {legacySafety.length > 0 && (
               <div>
-                <p className="text-xs flex items-center gap-1 font-bold text-gray-500 mb-2 bg-gray-100 px-2.5 py-1 rounded-lg w-fit">● 미분류 데이터 ({legacySafety.length})</p>
+                <p className="text-base flex items-center gap-1.5 font-black text-gray-700 mb-3 bg-gray-200/80 px-4 py-2 rounded-xl w-fit shadow-sm border border-gray-300">
+                  <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                  미분류 데이터 ({legacySafety.length})
+                </p>
                 <div className="space-y-2">
                   {legacySafety.map(staff => (
                     <StaffRow 
@@ -377,8 +418,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
 
         {/* 보건관리자 명단 */}
         <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
-          <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <p className="text-base font-black text-emerald-800 uppercase tracking-wider mb-4 flex items-center gap-2 bg-emerald-100/80 px-4 py-2 rounded-xl w-fit shadow-sm border border-emerald-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
             보건관리자 배치 명단 ({assignedHealth.length})
           </p>
           <div className="space-y-2">
@@ -512,13 +553,19 @@ export default function SiteDashboard() {
 
       {/* 상단 버튼 섹션 */}
       <div className="flex justify-between items-center gap-4">
-        <div className="flex flex-col">
-          <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-            {selectedRegion === '전체' ? '모든 현장' : `${selectedRegion} 현장`}
+        <div className="flex flex-col gap-1.5">
+          <p className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+            {selectedRegion === '전체' ? '전체 현장 현황' : `${selectedRegion} 현장 현황`}
           </p>
-          <p className="text-xs text-gray-400 mt-1">
-            {selectedRegion === '전체' ? '현장을 드래그하여 순서를 변경할 수 있습니다.' : '필터 활성화 시 드래그 순서 변경이 제한됩니다.'}
-          </p>
+          <div className="flex items-center gap-2 text-gray-500 bg-gray-100/50 px-3 py-1.5 rounded-lg w-fit border border-gray-100">
+            <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm font-bold">
+              {selectedRegion === '전체' ? '현장을 드래그하여 자유롭게 순서를 변경할 수 있습니다.' : '권역 필터 활성화 시에는 순서 변경이 제한됩니다.'}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           {/* 안전관리자 배치기준 열람/업로드 영역 */}

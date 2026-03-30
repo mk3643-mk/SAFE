@@ -122,14 +122,11 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">직급</label>
-                  <select className="w-full px-3 py-2 border rounded-xl" value={formData.rank || '사원'} onChange={e => setFormData({...formData, rank: e.target.value})}>
-                    <option>사원</option>
+                  <select className="w-full px-3 py-2 border rounded-xl" value={formData.rank || '주임'} onChange={e => setFormData({...formData, rank: e.target.value})}>
                     <option>주임</option>
                     <option>대리</option>
                     <option>과장</option>
-                    <option>차장</option>
                     <option>부장</option>
-                    <option>임원</option>
                   </select>
                 </div>
               </div>
@@ -210,7 +207,7 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 <div className="flex gap-2">
                   <button type="button" onClick={() => setFormData({...formData, licenseType: 'SAFETY'})} className={`flex-1 py-2 text-sm font-bold rounded-xl border ${formData.licenseType === 'SAFETY' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500'}`}>안전</button>
                   <button type="button" onClick={() => setFormData({...formData, licenseType: 'HEALTH'})} className={`flex-1 py-2 text-sm font-bold rounded-xl border ${formData.licenseType === 'HEALTH' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white border-gray-200 text-gray-500'}`}>보건</button>
-                  <button type="button" onClick={() => setFormData({...formData, licenseType: 'DUAL'})} className={`flex-1 py-2 text-sm font-bold rounded-xl border ${formData.licenseType === 'DUAL' ? 'bg-purple-50 border-purple-500 text-purple-700' : 'bg-white border-gray-200 text-gray-500'}`}>겸직</button>
+                  <button type="button" onClick={() => setFormData({...formData, licenseType: 'DUAL'})} className={`flex-1 py-2 text-sm font-bold rounded-xl border ${formData.licenseType === 'DUAL' ? 'bg-purple-50 border-purple-500 text-purple-700' : 'bg-white border-gray-200 text-gray-500'}`}>안전/보건</button>
                 </div>
               </div>
 
@@ -224,7 +221,7 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase mb-1">직무 분야</p>
                 <p className="text-sm font-bold text-gray-900">
-                  {staff.licenseType === 'SAFETY' ? '안전관리자' : staff.licenseType === 'HEALTH' ? '보건관리자' : '안전/보건 겸직 가능'}
+                  {staff.licenseType === 'SAFETY' ? '안전' : staff.licenseType === 'HEALTH' ? '보건' : '안전/보건'}
                 </p>
               </div>
 

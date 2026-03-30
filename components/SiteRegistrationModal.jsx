@@ -12,6 +12,8 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     totalAmount: 0,
     subAmt: 0,
     isSubProxy: false,
+    isDemolition: false,
+    startDate: '2026-03-01',
     endDate: ''
   });
 
@@ -117,6 +119,17 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
             </div>
 
             <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">착공일</label>
+              <input
+                required
+                type="date"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">준공 예정일</label>
               <input
                 required
@@ -140,7 +153,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
                     checked={formData.isSubProxy}
                     onChange={(e) => setFormData({ ...formData, isSubProxy: e.target.checked })}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -156,6 +169,24 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
                   />
                 </div>
               )}
+            </div>
+
+            <div className="col-span-full bg-red-50/50 p-5 rounded-2xl border border-red-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-red-900">철거공사 포함 여부</p>
+                  <p className="text-xs text-red-600 mt-1">철거공사가 포함된 경우 안전관리자 선임 인원이 50% 감면됩니다.</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={formData.isDemolition}
+                    onChange={(e) => setFormData({ ...formData, isDemolition: e.target.checked })}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
+              </div>
             </div>
           </div>
 

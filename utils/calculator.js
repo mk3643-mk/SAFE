@@ -1,27 +1,76 @@
 /**
- * 법정 안전/보건관리자 인원 산출 핵심 산식
- * 15% 완화 적용 및 대리 선임 금액 차감 포함
+ * 사용자가 제공한 상세 안전/보건관리자 배치(선임) 기준 반영
  */
 export const calculateRequiredStaff = (site) => {
-  // 수급인 100억↑ 대리 선임 시 차감 로직
-  const netAmt = site.isSubProxy ? site.totalAmt - site.subAmt : site.totalAmt;
+  const { totalAmount, subAmt, isSubProxy, type, isDemolition, startDate, endDate } = site;
   
-  let safetyReq = 1;
-  let healthReq = 1;
+  // 0. 기본 변수 설정
+  const today = new Date('2026-03-30'); // 시스템 기준일 (현재 날짜)
+  const start = new Date(startDate || '2026-01-01');
+  const end = new Date(endDate || '2026-12-31');
+  
+  // 공사기간 계산 (일수 단위)
+  const totalDays = Math.max(1, (end - start) / (1000 * 60 * 60 * 24));
+  const elapsedDays = Math.max(0, (today - start) / (1000 * 60 * 60 * 24));
+  const remainingDays = Math.max(0, (end - today) / (1000 * 60 * 60 * 24));
+  
+  const isInitialPhase = elapsedDays <= totalDays * 0.15;
+  const isFinalPhase = remainingDays <= totalDays * 0.15;
+  const isReducedPhase = isInitialPhase || isFinalPhase;
 
-  // 안전관리자 기준 (간소화된 예시 산식, 실제 산안법 기준 적용 필요)
-  if (netAmt >= 1500) safetyReq = 3;
-  else if (netAmt >= 800) safetyReq = 2;
-  else if (netAmt >= 50) safetyReq = 1;
+  // 6번 & 8번 기준: 수급인 차감 로직 적용 금액
+  // 원도급사는 (전체 - 수급인) 금액으로 기준 인원 산정
+  const netAmt = isSubProxy ? totalAmount - (subAmt || 0) : totalAmount;
+
+  let safetyReq = 0;
+  let seniorReq = 0;
+
+  // 1 & 2. 공사 종류별 안전관리자 기본 인원 산정
+  if (type === 'ARCH') { // 건축현장
+    if (netAmt >= 3900) { safetyReq = 6; seniorReq = 2; }
+    else if (netAmt >= 3000) { safetyReq = 5; seniorReq = 2; }
+    else if (netAmt >= 2200) { safetyReq = 4; seniorReq = 1; }
+    else if (netAmt >= 1500) { safetyReq = 3; seniorReq = 1; }
+    else if (netAmt >= 800) { safetyReq = 2; seniorReq = 0; }
+    else if (netAmt >= 120) { safetyReq = 1; seniorReq = 0; }
+  } else { // 토목현장
+    if (netAmt >= 800) { safetyReq = 2; seniorReq = 0; }
+    else if (netAmt >= 150) { safetyReq = 1; seniorReq = 0; }
+    // 토목현장 1,500억 이상 예시는 사용자 설명에 "3명 (7년 이상 경력자 1명 반드시 포함)"으로 되어 있음
+    if (netAmt >= 1500) { safetyReq = 3; seniorReq = 1; }
+  }
+
+  // 3-①. 전후 15% 기간 50% 감면 (착공/준공 15% 시점)
+  if (isReducedPhase) {
+    safetyReq = Math.max(1, Math.ceil(safetyReq * 0.5)); // 최소 1명은 유지 (관례상)
+    
+    // 3-②, ③. 경력자(7년↑) 15% 기간 필수 포함 로직
+    if (netAmt >= 1500 && netAmt < 3000) seniorReq = 1;
+    else if (netAmt >= 3000) seniorReq = 1; // 3000억 이상 4900억 미만 50%(1명) 필수
+  }
+
+  // 5번 기준: 철거공사 포함 시 50% 감면
+  if (isDemolition) {
+    safetyReq = Math.max(1, Math.ceil(safetyReq * 0.5));
+    seniorReq = Math.max(0, Math.ceil(seniorReq * 0.5));
+  }
+
+  // 8번 기준: 대리 선임 시 협력사 1명분을 원도급사 관리 인원에서 별도로 보지 않고, 
+  // 원도급사 인원 + 대리 선임 1명으로 총합 계산
+  if (isSubProxy) {
+    safetyReq += 1;
+  }
 
   // 보건관리자 기준
-  if (site.totalAmt >= 3000) healthReq = 2;
-  else if (site.totalAmt >= 800) healthReq = 1;
+  let healthReq = 0;
+  if (type === 'ARCH' && totalAmount >= 800) healthReq = 1;
+  else if (type === 'CIVIL' && totalAmount >= 1000) healthReq = 1;
 
   return {
     safety: safetyReq,
     health: healthReq,
-    needSenior: site.totalAmt >= 1500 // 1500억 이상 고경력자 필수 여부
+    senior: seniorReq,
+    isReducedPhase
   };
 };
 

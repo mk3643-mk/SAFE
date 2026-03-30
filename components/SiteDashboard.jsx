@@ -45,9 +45,11 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
   const requirements = calculateRequiredStaff(site);
   const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL'));
   const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.licenseType === 'HEALTH');
+  const assignedSeniors = assignedSafety.filter(h => h.experience >= 7);
   
   const needSafety = Math.max(0, requirements.safety - assignedSafety.length);
   const needHealth = Math.max(0, requirements.health - assignedHealth.length);
+  const needSenior = Math.max(0, requirements.senior - assignedSeniors.length);
 
   return (
     <div 
@@ -89,7 +91,10 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             </svg>
           </button>
           {site.isSubProxy && (
-            <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-amber-100 mt-1">대리 선임 차감 적용</span>
+            <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-amber-100 mt-1 mr-2 inline-block">대리 선임 차감 적용</span>
+          )}
+          {requirements.isReducedPhase && (
+            <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-blue-100 mt-1 inline-block text-center mr-2">공정 초기/말기 (50% 감면)</span>
           )}
         </div>
       </div>
@@ -105,11 +110,34 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             <div className="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-blue-500 transition-all" 
-                style={{ width: `${(assignedSafety.length / requirements.safety) * 100}%` }}
+                style={{ width: `${Math.min(100, (assignedSafety.length / requirements.safety) * 100)}%` }}
               ></div>
             </div>
             <span className="text-sm font-bold text-blue-600">{assignedSafety.length} / {requirements.safety}</span>
           </div>
+
+          {/* 경력직(Senior) 배치 현황 추가 */}
+          {requirements.safety > 0 && requirements.senior > 0 && (
+            <div className="mb-4 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[11px] font-bold text-indigo-700">필수 경력직 (7년↑)</span>
+                <span className="text-[11px] font-bold text-indigo-700">{assignedSeniors.length} / {requirements.senior}</span>
+              </div>
+              <div className="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-indigo-500 transition-all" 
+                  style={{ width: `${Math.min(100, (assignedSeniors.length / requirements.senior) * 100)}%` }}
+                ></div>
+              </div>
+              {needSenior > 0 && (
+                <p className="text-[10px] text-indigo-600 mt-1.5 font-medium flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                  7년 이상 경력자 {needSenior}명 추가 필요
+                </p>
+              )}
+            </div>
+          )}
+
           {needSafety > 0 && (
             <p className="text-red-500 font-bold text-xs mb-3 flex items-center gap-1">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" /></svg>

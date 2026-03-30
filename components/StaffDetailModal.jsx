@@ -235,7 +235,7 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 </div>
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">만 나이</p>
-                  <p className="text-base font-black text-gray-900">{staff.age ? `${staff.age}세` : '-'}</p>
+                  <p className="text-base font-black text-gray-900">{staff.birthDate ? `${calculateAge(staff.birthDate)}세` : (staff.age ? `${staff.age}세` : '-')}</p>
                 </div>
               </div>
 

@@ -37,11 +37,12 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
           <div>
             <h2 className="text-2xl font-black text-gray-900">{isEditing ? '현장 정보 수정' : site.name}</h2>
             {!isEditing && (
-              <div className="flex gap-2 mt-2">
-                <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{site.region}</span>
-                <span className="text-xs font-bold bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{site.type === 'ARCH' ? '건축' : '토목'}</span>
-                {site.subAppointmentType === 'PROXY' && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full">원도급 대리 선임</span>}
-                {site.subAppointmentType === 'DIRECT' && <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded-full">협력사 직접 선임</span>}
+              <div className="flex gap-2 mt-2 flex-wrap">
+                <span className="text-sm font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">{site.region}</span>
+                <span className="text-sm font-bold bg-gray-50 text-gray-600 px-3 py-1 rounded-full border border-gray-200">{site.type === 'ARCH' ? '건축' : '토목'}</span>
+                {site.subAppointmentType === 'PROXY' && <span className="text-sm font-bold bg-amber-50 text-amber-700 px-3 py-1 rounded-full border border-amber-200">원도급 대리 선임</span>}
+                {site.subAppointmentType === 'DIRECT' && <span className="text-sm font-bold bg-purple-50 text-purple-700 px-3 py-1 rounded-full border border-purple-200">협력사 직접 선임</span>}
+                {site.managerName && <span className="text-sm font-bold bg-gray-900 text-white px-3 py-1 rounded-full">{site.managerName} 소장</span>}
               </div>
             )}
           </div>
@@ -64,9 +65,15 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
         <div className="p-6 space-y-6 overflow-y-auto">
           {isEditing ? (
             <form id="edit-site-form" onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">현장명</label>
-                <input type="text" required className="w-full px-3 py-2 border rounded-xl" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">현장명</label>
+                  <input type="text" required className="w-full px-3 py-2 border rounded-xl" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">현장 소장</label>
+                  <input type="text" required className="w-full px-3 py-2 border rounded-xl" value={formData.managerName || ''} onChange={e => setFormData({...formData, managerName: e.target.value})} />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -74,10 +81,10 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                   <select className="w-full px-3 py-2 border rounded-xl" value={formData.region || '수도권'} onChange={e => setFormData({...formData, region: e.target.value})}>
                     <option>서울권</option>
                     <option>경기권</option>
-                    <option>충청권</option>
-                    <option>호남권</option>
-                    <option>영남권</option>
                     <option>강원권</option>
+                    <option>충남권</option>
+                    <option>영남권</option>
+                    <option>호남권</option>
                     <option>제주권</option>
                   </select>
                 </div>
@@ -149,13 +156,13 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
           ) : (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-2xl">
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                   <p className="text-xs font-bold text-gray-400 uppercase">총 공사 금액</p>
-                  <p className="text-lg font-black text-gray-900 mt-1">{site.totalAmount.toLocaleString()}억 원</p>
+                  <p className="text-xl font-black text-gray-900 mt-1">{site.totalAmount.toLocaleString()}억 원</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-2xl">
+                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                   <p className="text-xs font-bold text-gray-400 uppercase">하도급 금액</p>
-                  <p className="text-lg font-black text-gray-900 mt-1">{site.subAmt ? `${site.subAmt.toLocaleString()}억 원` : '해당없음'}</p>
+                  <p className="text-xl font-black text-gray-900 mt-1">{site.subAmt ? `${site.subAmt.toLocaleString()}억 원` : '해당없음'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 col-span-2">
                   <div className="bg-gray-50 p-4 rounded-2xl">
@@ -196,7 +203,7 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                         {assignedSafety.length} <span className="text-sm text-gray-400 font-normal">/ {requirements.safety}명</span>
                       </span>
                       {requirements.proxyReq > 0 && (
-                        <p className="text-[10px] text-blue-500 font-bold mt-1">
+                        <p className="text-xs text-blue-500 font-bold mt-1">
                           (원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})
                         </p>
                       )}

@@ -154,16 +154,21 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               <svg className="w-5 h-5 text-gray-300 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-xs font-normal bg-gray-100 text-gray-500 px-2 py-1 rounded-full">{site.region}</span>
+              <span className="text-sm font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">{site.region}</span>
             </h2>
-            <p className="text-gray-500 mt-1 flex flex-wrap items-center gap-y-1 gap-x-2">
-              <span className="flex items-center gap-2">
+            <p className="text-gray-500 mt-2 flex flex-wrap items-center gap-y-2 gap-x-3">
+              <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                총 공사비 {site.totalAmount.toLocaleString()}억 원
+                <span className="text-sm font-bold text-gray-700 font-sans">총 공사비 {site.totalAmount.toLocaleString()}억 원</span>
               </span>
               {Number(site.subAmt) > 0 && (
-                <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 ring-1 ring-blue-200">
+                <span className="text-xs text-blue-700 font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shadow-sm">
                   기준 금액: {requirements.netAmt.toLocaleString()}억 원 (협력사 {site.subAmt}억 차감)
+                </span>
+              )}
+              {site.managerName && (
+                <span className="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                  {site.managerName} 소장
                 </span>
               )}
             </p>
@@ -184,13 +189,13 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             </svg>
           </button>
           {site.subAppointmentType === 'PROXY' && (
-            <span className="bg-amber-50 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ring-amber-100 mt-1 mr-1.5 inline-block">원도급 대리</span>
+            <span className="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1.5 rounded-full border border-amber-200 shadow-sm mt-1 mr-1.5 inline-block">원도급 대리</span>
           )}
           {site.subAppointmentType === 'DIRECT' && (
-            <span className="bg-purple-50 text-purple-700 text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ring-purple-100 mt-1 mr-1.5 inline-block">협력사 직접</span>
+            <span className="bg-purple-100 text-purple-800 text-xs font-black px-3 py-1.5 rounded-full border border-purple-200 shadow-sm mt-1 mr-1.5 inline-block">협력사 직접</span>
           )}
           {requirements.currentPhase !== 'NONE' && (
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ring-1 mt-1 inline-block text-center mr-1.5 ${requirements.isReducedPhase ? 'bg-orange-50 text-orange-700 ring-orange-100' : 'bg-blue-50 text-blue-700 ring-blue-100'}`}>
+            <span className={`text-xs font-black px-3 py-1.5 rounded-full border shadow-sm mt-1 inline-block text-center mr-1.5 ${requirements.isReducedPhase ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200'}`}>
               {requirements.phaseLabel} {requirements.isReducedPhase ? '(50% 감면)' : '(100% 선임)'}
             </span>
           )}
@@ -205,7 +210,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               <div className="flex flex-col items-end gap-1">
                 <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded font-bold">법정: {requirements.safety}명</span>
                 {requirements.proxyReq > 0 && (
-                  <span className="text-[10px] text-blue-500 font-bold">(원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})</span>
+                  <span className="text-xs text-blue-500 font-bold">(원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})</span>
                 )}
               </div>
             </div>
@@ -399,15 +404,26 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
 }
 
 export default function SiteDashboard() {
-  const { hrPool, sites, siteDirectoryPdf, setSiteDirectoryPdf, unassignStaff, removeSite, reorderSites } = useStore();
+  const { hrPool, sites, siteDirectoryPdf, setSiteDirectoryPdf, safetyStandardsPdf, setSafetyStandardsPdf, unassignStaff, removeSite, reorderSites } = useStore();
   const [modal, setModal] = useState({ open: false, siteId: null, roleType: null });
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [pdfModal, setPdfModal] = useState({ open: false, data: null, title: '' });
+  const [selectedRegion, setSelectedRegion] = useState('전체');
   
+  const regions = ['전체', '서울권', '경기권', '강원권', '충남권', '영남권', '호남권'];
+
+  // 충청권 -> 충남권 매핑 고려 (사용자 요청에 맞춤)
+  const filteredSites = selectedRegion === '전체' 
+    ? sites 
+    : sites.filter(site => {
+        if (selectedRegion === '충남권' && site.region === '충청권') return true;
+        return site.region === selectedRegion;
+      });
+
   const [siteDetailModal, setSiteDetailModal] = useState(null);
   const [staffDetailModal, setStaffDetailModal] = useState(null);
 
-  const handlePdfUpload = (e) => {
+  const handlePdfUpload = (e, type) => {
     const file = e.target.files[0];
     if (file) {
       if (file.type !== 'application/pdf') {
@@ -420,8 +436,13 @@ export default function SiteDashboard() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSiteDirectoryPdf(reader.result);
-        setIsPdfModalOpen(true); // 업로드 성공 시 바로 열람
+        if (type === 'DIRECTORY') {
+          setSiteDirectoryPdf(reader.result);
+          setPdfModal({ open: true, data: reader.result, title: '현장 주소록 열람' });
+        } else {
+          setSafetyStandardsPdf(reader.result);
+          setPdfModal({ open: true, data: reader.result, title: '안전관리자 배치기준 열람' });
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -458,72 +479,152 @@ export default function SiteDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* 권역 필터 섹션 */}
+      <div className="flex flex-wrap gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-fit border border-gray-100">
+        {regions.map(region => {
+          const count = region === '전체' 
+            ? sites.length 
+            : sites.filter(s => {
+                if (region === '충남권' && s.region === '충청권') return true;
+                return s.region === region;
+              }).length;
+
+          return (
+            <button
+              key={region}
+              onClick={() => setSelectedRegion(region)}
+              className={`px-8 py-3 rounded-xl text-base font-black transition-all flex items-center gap-2 whitespace-nowrap ${
+                selectedRegion === region 
+                ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5' 
+                : 'text-gray-500 hover:text-gray-800 hover:bg-white/50'
+              }`}
+            >
+              {region}
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                selectedRegion === region ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-200 text-gray-500'
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* 상단 버튼 섹션 */}
-      <div className="flex justify-end items-center gap-4">
-        {/* 현장주소록 열람/업로드 영역 */}
-        <div className="flex gap-2 relative">
-          {siteDirectoryPdf && (
-            <button 
-              onClick={() => setIsPdfModalOpen(true)}
-              className="group flex items-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-95"
-            >
-              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <span>주소록 열람 (PDF)</span>
-            </button>
-          )}
-
-          <div className="relative">
-            <input 
-              type="file" 
-              accept=".pdf" 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              onChange={handlePdfUpload}
-              title="현장주소록 PDF 업로드"
-              value=""
-            />
-            <button 
-              className={`group flex items-center gap-2 ${siteDirectoryPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-emerald-500 hover:shadow-md transition-all active:scale-95`}
-            >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${siteDirectoryPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50' : 'bg-emerald-600 text-white group-hover:scale-110'}`}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  {siteDirectoryPdf 
-                    ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />}
-                </svg>
-              </div>
-              <span>{siteDirectoryPdf ? '파일 변경' : '현장주소록 업로드'}</span>
-            </button>
-          </div>
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex flex-col">
+          <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">
+            {selectedRegion === '전체' ? '모든 현장' : `${selectedRegion} 현장`}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            {selectedRegion === '전체' ? '현장을 드래그하여 순서를 변경할 수 있습니다.' : '필터 활성화 시 드래그 순서 변경이 제한됩니다.'}
+          </p>
         </div>
+        <div className="flex items-center gap-4">
+          {/* 안전관리자 배치기준 열람/업로드 영역 */}
+          <div className="flex gap-2 relative">
+            {safetyStandardsPdf && (
+              <button 
+                onClick={() => setPdfModal({ open: true, data: safetyStandardsPdf, title: '안전관리자 배치기준 열람' })}
+                className="group flex items-center gap-2 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-95"
+              >
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>배치기준 열람 (PDF)</span>
+              </button>
+            )}
 
-        {/* 신규 등록 버튼 */}
-        <button 
-          onClick={() => setIsRegModalOpen(true)}
-          className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-blue-500 hover:shadow-md transition-all active:scale-95"
-        >
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+            <div className="relative">
+              <input 
+                type="file" 
+                accept=".pdf" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                onChange={(e) => handlePdfUpload(e, 'STANDARDS')}
+                title="안전관리자 배치기준 PDF 업로드"
+                value=""
+              />
+              <button 
+                className={`group flex items-center gap-2 ${safetyStandardsPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-blue-500 hover:shadow-md transition-all active:scale-95`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${safetyStandardsPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-blue-50' : 'bg-blue-600 text-white group-hover:scale-110'}`}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {safetyStandardsPdf 
+                      ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />}
+                  </svg>
+                </div>
+                <span>{safetyStandardsPdf ? '변경' : '배치기준 업로드'}</span>
+              </button>
+            </div>
           </div>
-          <span>현장 개요 신규 등록</span>
-        </button>
+
+          {/* 현장주소록 열람/업로드 영역 */}
+          <div className="flex gap-2 relative">
+            {siteDirectoryPdf && (
+              <button 
+                onClick={() => setPdfModal({ open: true, data: siteDirectoryPdf, title: '현장 주소록 열람' })}
+                className="group flex items-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-95"
+              >
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>주소록 열람 (PDF)</span>
+              </button>
+            )}
+
+            <div className="relative">
+              <input 
+                type="file" 
+                accept=".pdf" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                onChange={(e) => handlePdfUpload(e, 'DIRECTORY')}
+                title="현장주소록 PDF 업로드"
+                value=""
+              />
+              <button 
+                className={`group flex items-center gap-2 ${siteDirectoryPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-emerald-500 hover:shadow-md transition-all active:scale-95`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${siteDirectoryPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50' : 'bg-emerald-600 text-white group-hover:scale-110'}`}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {siteDirectoryPdf 
+                      ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />}
+                  </svg>
+                </div>
+                <span>{siteDirectoryPdf ? '변경' : '주소록 업로드'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 신규 등록 버튼 */}
+          <button 
+            onClick={() => setIsRegModalOpen(true)}
+            className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-blue-500 hover:shadow-md transition-all active:scale-95"
+          >
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <span>현장 개요 신규 등록</span>
+          </button>
+        </div>
       </div>
 
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
+        onDragEnd={selectedRegion === '전체' ? handleDragEnd : undefined}
       >
         <SortableContext 
-          items={sites.map(s => s.id)}
+          items={filteredSites.map(s => s.id)}
           strategy={rectSortingStrategy}
+          disabled={selectedRegion !== '전체'}
         >
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {sites.map((site) => (
+            {filteredSites.map((site) => (
               <SortableSiteCard
                 key={site.id}
                 site={site}
@@ -566,16 +667,16 @@ export default function SiteDashboard() {
       />
 
       {/* PDF 열람 모달 */}
-      {isPdfModalOpen && (
+      {pdfModal.open && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 lg:p-10 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full h-full max-w-6xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-900 text-white">
               <h3 className="font-bold flex items-center gap-2">
-                <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" /></svg>
-                현장 주소록 열람
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" /></svg>
+                {pdfModal.title}
               </h3>
               <button 
-                onClick={() => setIsPdfModalOpen(false)} 
+                onClick={() => setPdfModal({ ...pdfModal, open: false })} 
                 className="text-gray-400 hover:text-white p-1 rounded-full transition-colors hover:bg-white/10"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,9 +686,9 @@ export default function SiteDashboard() {
             </div>
             <div className="flex-1 w-full bg-gray-100">
               <iframe 
-                src={siteDirectoryPdf} 
+                src={pdfModal.data} 
                 className="w-full h-full border-none"
-                title="현장 주소록 PDF"
+                title={pdfModal.title}
               />
             </div>
           </div>

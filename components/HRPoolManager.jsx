@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
 import StaffRegistrationModal from './StaffRegistrationModal.jsx';
 import StaffDetailModal from './StaffDetailModal.jsx';
+import { calculateAge } from '../utils/calculator.js';
 
 export default function HRPoolManager() {
   const { hrPool, sites, removeStaff } = useStore();
@@ -58,7 +59,7 @@ export default function HRPoolManager() {
                         {staff.name} <span className="text-xs font-medium text-gray-400 ml-1">{staff.rank}</span>
                       </p>
                       <p className="text-xs text-gray-500">
-                        {staff.age ? `만 ${staff.age}세` : '-'} · 경력 {staff.experience}년차
+                        {staff.birthDate ? `만 ${calculateAge(staff.birthDate)}세` : (staff.age ? `만 ${staff.age}세` : '-')} · 경력 {staff.experience}년차
                       </p>
                     </div>
                   </div>

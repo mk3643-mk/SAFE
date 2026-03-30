@@ -18,7 +18,7 @@ export async function GET() {
 
     const data = await kv.get('safe-dashboard-data') || { hrPool: null, sites: null };
 
-    // Fetch PDF chunks
+    // Fetch Site Directory PDF chunks
     const chunkCount = await kv.get('safe-pdf-count');
     let siteDirectoryPdf = null;
     if (chunkCount) {
@@ -30,7 +30,19 @@ export async function GET() {
       siteDirectoryPdf = fullPdf;
     }
 
-    return NextResponse.json({ ...data, siteDirectoryPdf });
+    // Fetch Safety Standards PDF chunks
+    const safetyChunkCount = await kv.get('safe-pdf-safety-count');
+    let safetyStandardsPdf = null;
+    if (safetyChunkCount) {
+      let fullPdf = '';
+      for (let i = 0; i < safetyChunkCount; i++) {
+        const chunk = await kv.get(`safe-pdf-safety-${i}`);
+        if (chunk) fullPdf += chunk;
+      }
+      safetyStandardsPdf = fullPdf;
+    }
+
+    return NextResponse.json({ ...data, siteDirectoryPdf, safetyStandardsPdf });
   } catch (error) {
     console.error('KV GET Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -60,6 +72,19 @@ export async function POST(request) {
         }
       } else {
         await kv.set('safe-pdf-count', 0);
+      }
+    } else if (body.type === 'pdf_safety') {
+      // 3. 안전관리자 배치기준 PDF 독립 동기화
+      if (body.safetyStandardsPdf) {
+        const chunks = body.safetyStandardsPdf.match(/.{1,800000}/g); 
+        if (chunks) {
+          await kv.set('safe-pdf-safety-count', chunks.length);
+          for (let i = 0; i < chunks.length; i++) {
+            await kv.set(`safe-pdf-safety-${i}`, chunks[i]);
+          }
+        }
+      } else {
+        await kv.set('safe-pdf-safety-count', 0);
       }
     } else {
       // 하위 호환성

@@ -61,6 +61,7 @@ export const useStore = create((set, get) => ({
   hrPool: INITIAL_HR_POOL,
   sites: INITIAL_SITES,
   siteDirectoryPdf: null,
+  safetyStandardsPdf: null,
   isLoaded: false,
   
   setInitialData: (data) => {
@@ -74,6 +75,7 @@ export const useStore = create((set, get) => ({
       hrPool: processedHrPool,
       sites: data.sites || INITIAL_SITES,
       siteDirectoryPdf: data.siteDirectoryPdf || null,
+      safetyStandardsPdf: data.safetyStandardsPdf || null,
       isLoaded: true
     });
   },
@@ -92,6 +94,22 @@ export const useStore = create((set, get) => ({
         if (data.error) alert('PDF 저장 실패: ' + data.error);
       })
       .catch(err => console.error('PDF sync failed', err));
+    }
+  },
+
+  setSafetyStandardsPdf: (pdfData) => {
+    set({ safetyStandardsPdf: pdfData });
+    if (typeof window !== 'undefined') {
+      fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'pdf_safety', safetyStandardsPdf: pdfData }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) alert('안전관리자 배치기준 PDF 저장 실패: ' + data.error);
+      })
+      .catch(err => console.error('Safety standards PDF sync failed', err));
     }
   },
   

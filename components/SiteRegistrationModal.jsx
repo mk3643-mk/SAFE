@@ -17,6 +17,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     mainStartDate: '2026-03-01',
     mainEndDate: '',
     isDemolition: false,
+    managerName: '',
   });
 
   if (!isOpen) return null;
@@ -41,6 +42,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
       mainStartDate: '2026-03-01',
       mainEndDate: '',
       isDemolition: false,
+      managerName: '',
     });
   };
 
@@ -61,7 +63,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-full">
+            <div className="md:col-span-1">
               <label className="block text-sm font-bold text-gray-700 mb-2">현장명</label>
               <input
                 required
@@ -70,6 +72,18 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            <div className="md:col-span-1">
+              <label className="block text-sm font-bold text-gray-700 mb-2">현장 소장</label>
+              <input
+                required
+                type="text"
+                placeholder="예: 홍길동"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                value={formData.managerName}
+                onChange={(e) => setFormData({ ...formData, managerName: e.target.value })}
               />
             </div>
 
@@ -82,9 +96,11 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
               >
                 <option>서울권</option>
                 <option>경기권</option>
+                <option>강원권</option>
+                <option>충남권</option>
                 <option>영남권</option>
                 <option>호남권</option>
-                <option>충청권</option>
+                <option>제주권</option>
               </select>
             </div>
 

@@ -105,8 +105,15 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
   };
 
   const requirements = calculateRequiredStaff(site);
-  const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && h.assignedRole === 'SAFETY');
-  const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.assignedRole === 'HEALTH');
+  // assignedRole이 명시되지 않은 기존 데이터를 위해 보정 로직 추가
+  const assignedSafety = hrPool.filter(h => 
+    h.assignedSiteId === site.id && 
+    (h.assignedRole === 'SAFETY' || (!h.assignedRole && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL')))
+  );
+  const assignedHealth = hrPool.filter(h => 
+    h.assignedSiteId === site.id && 
+    (h.assignedRole === 'HEALTH' || (!h.assignedRole && h.licenseType === 'HEALTH'))
+  );
   const assignedSeniors = assignedSafety.filter(h => isSeniorQualified(h));
   
   const needSafety = Math.max(0, requirements.safety - assignedSafety.length);

@@ -3,41 +3,41 @@ import { calculateExperienceYears } from '../utils/calculator.js';
 
 const INITIAL_HR_POOL = [
   // 을지로4가 오피스(13지구) - 1,321억
-  { id: 'H1', name: '유명철', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 25, licenses: ['건설안전'], assignedSiteId: 'S1' },
-  { id: 'H2', name: '홍성천', rank: '차장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 18, licenses: ['산업안전'], assignedSiteId: 'S1' },
-  { id: 'H3', name: '유상종', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S1' },
-  { id: 'H4', name: '이현우', rank: '주임', empType: 'REGULAR', licenseType: 'HEALTH', experience: 3, licenses: ['산업위생'], assignedSiteId: 'S1' },
+  { id: 'H1', name: '유명철', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 25, licenses: ['건설안전'], assignedSiteId: 'S1', assignedRole: 'SAFETY' },
+  { id: 'H2', name: '홍성천', rank: '차장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 18, licenses: ['산업안전'], assignedSiteId: 'S1', assignedRole: 'SAFETY' },
+  { id: 'H3', name: '유상종', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S1', assignedRole: 'SAFETY' },
+  { id: 'H4', name: '이현우', rank: '주임', empType: 'REGULAR', licenseType: 'HEALTH', experience: 3, licenses: ['산업위생'], assignedSiteId: 'S1', assignedRole: 'HEALTH' },
   
   // 을지로(15지구) - 1,024억
-  { id: 'H5', name: '이상률', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 22, licenses: ['산업안전'], assignedSiteId: 'S2' },
-  { id: 'H6', name: '전준혁', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 2, licenses: ['산업안전'], assignedSiteId: 'S2' },
-  { id: 'H7', name: '민성호', rank: '주임', empType: 'PROJECT', licenseType: 'HEALTH', experience: 5, licenses: ['산업위생'], assignedSiteId: 'S2' },
+  { id: 'H5', name: '이상률', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 22, licenses: ['산업안전'], assignedSiteId: 'S2', assignedRole: 'SAFETY' },
+  { id: 'H6', name: '전준혁', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 2, licenses: ['산업안전'], assignedSiteId: 'S2', assignedRole: 'SAFETY' },
+  { id: 'H7', name: '민성호', rank: '주임', empType: 'PROJECT', licenseType: 'HEALTH', experience: 5, licenses: ['산업위생'], assignedSiteId: 'S2', assignedRole: 'HEALTH' },
 
   // 파주운정6차 - 1,118억
-  { id: 'H8', name: '한용준', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 20, licenses: ['건설안전'], assignedSiteId: 'S3' },
-  { id: 'H9', name: '최주형', rank: '대리', empType: 'REGULAR', licenseType: 'SAFETY', experience: 8, licenses: ['산업안전'], assignedSiteId: 'S3' },
-  { id: 'H10', name: '이승준', rank: '대리', empType: 'REGULAR', licenseType: 'SAFETY', experience: 9, licenses: ['산업안전'], assignedSiteId: 'S3' },
+  { id: 'H8', name: '한용준', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 20, licenses: ['건설안전'], assignedSiteId: 'S3', assignedRole: 'SAFETY' },
+  { id: 'H9', name: '최주형', rank: '대리', empType: 'REGULAR', licenseType: 'SAFETY', experience: 8, licenses: ['산업안전'], assignedSiteId: 'S3', assignedRole: 'SAFETY' },
+  { id: 'H10', name: '이승준', rank: '대리', empType: 'REGULAR', licenseType: 'SAFETY', experience: 9, licenses: ['산업안전'], assignedSiteId: 'S3', assignedRole: 'SAFETY' },
 
   // 고양풍동 - 1,388억
-  { id: 'H11', name: '고용구', rank: '차장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 16, licenses: ['산업안전'], assignedSiteId: 'S4' },
+  { id: 'H11', name: '고용구', rank: '차장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 16, licenses: ['산업안전'], assignedSiteId: 'S4', assignedRole: 'SAFETY' },
 
   // 김포북변 재개발 - 2,454억
-  { id: 'H12', name: '임형석', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 21, licenses: ['산업안전'], assignedSiteId: 'S5' },
-  { id: 'H13', name: '이승엽', rank: '과장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 14, licenses: ['산업안전'], assignedSiteId: 'S5' },
-  { id: 'H14', name: '이현우', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 5, licenses: ['산업안전'], assignedSiteId: 'S5' },
-  { id: 'H15', name: '김대우', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S5' },
-  { id: 'H16', name: '한상윤', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 3, licenses: ['산업안전'], assignedSiteId: 'S5' },
-  { id: 'H17', name: '김인수', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 2, licenses: ['산업안전'], assignedSiteId: 'S5' },
+  { id: 'H12', name: '임형석', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 21, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
+  { id: 'H13', name: '이승엽', rank: '과장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 14, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
+  { id: 'H14', name: '이현우', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 5, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
+  { id: 'H15', name: '김대우', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
+  { id: 'H16', name: '한상윤', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 3, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
+  { id: 'H17', name: '김인수', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 2, licenses: ['산업안전'], assignedSiteId: 'S5', assignedRole: 'SAFETY' },
 
   // 남원주역세권1차 - 2,458억
-  { id: 'H18', name: '황준식', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 19, licenses: ['건설안전'], assignedSiteId: 'S6' },
-  { id: 'H19', name: '유수영', rank: '대리', empType: 'REGULAR', licenseType: 'HEALTH', experience: 7, licenses: ['간호사'], assignedSiteId: 'S6' },
-  { id: 'H20', name: '김은혜', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S6' },
+  { id: 'H18', name: '황준식', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 19, licenses: ['건설안전'], assignedSiteId: 'S6', assignedRole: 'SAFETY' },
+  { id: 'H19', name: '유수영', rank: '대리', empType: 'REGULAR', licenseType: 'HEALTH', experience: 7, licenses: ['간호사'], assignedSiteId: 'S6', assignedRole: 'HEALTH' },
+  { id: 'H20', name: '김은혜', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 4, licenses: ['산업안전'], assignedSiteId: 'S6', assignedRole: 'SAFETY' },
 
   // 울산다운1차 - 3,255억
-  { id: 'H21', name: '이정길', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 26, licenses: ['건설안전'], assignedSiteId: 'S7' },
-  { id: 'H22', name: '조광오', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 6, licenses: ['산업안전'], assignedSiteId: 'S7' },
-  { id: 'H23', name: '김성욱', rank: '주임', empType: 'REGULAR', licenseType: 'HEALTH', experience: 4, licenses: ['인간공학'], assignedSiteId: 'S7' },
+  { id: 'H21', name: '이정길', rank: '부장', empType: 'REGULAR', licenseType: 'SAFETY', experience: 26, licenses: ['건설안전'], assignedSiteId: 'S7', assignedRole: 'SAFETY' },
+  { id: 'H22', name: '조광오', rank: '주임', empType: 'REGULAR', licenseType: 'SAFETY', experience: 6, licenses: ['산업안전'], assignedSiteId: 'S7', assignedRole: 'SAFETY' },
+  { id: 'H23', name: '김성욱', rank: '주임', empType: 'REGULAR', licenseType: 'HEALTH', experience: 4, licenses: ['인간공학'], assignedSiteId: 'S7', assignedRole: 'HEALTH' },
 
   // 가용 인력풀 (미배치 전문 인력)
   { id: 'H24', name: '박건설', rank: '차장', empType: 'REGULAR', licenseType: 'DUAL', experience: 15, licenses: ['건설안전기사', '대기환경기사'], assignedSiteId: null },
@@ -95,15 +95,15 @@ export const useStore = create((set, get) => ({
     }
   },
   
-  assignStaff: (staffId, siteId) => set((state) => ({
+  assignStaff: (staffId, siteId, roleType) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
-      staff.id === staffId ? { ...staff, assignedSiteId: siteId } : staff
+      staff.id === staffId ? { ...staff, assignedSiteId: siteId, assignedRole: roleType } : staff
     )
   })),
 
   unassignStaff: (staffId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
-      staff.id === staffId ? { ...staff, assignedSiteId: null } : staff
+      staff.id === staffId ? { ...staff, assignedSiteId: null, assignedRole: null } : staff
     )
   })),
 

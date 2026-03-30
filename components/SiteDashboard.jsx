@@ -25,6 +25,68 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+function StaffRow({ staff, site, onStaffClick, handleUnassign, handleRoleToggle }) {
+  return (
+    <div 
+      className="flex justify-between items-center bg-white border border-gray-100 px-4 py-3 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+      onClick={() => onStaffClick(staff)}
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
+          {staff.photo ? (
+            <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
+          ) : (
+            staff.name[0]
+          )}
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{staff.name}</span>
+            <span className="text-[10px] text-gray-400 font-medium">{staff.rank}</span>
+            {staff.licenseType === 'DUAL' && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleToggle(staff);
+                }}
+                className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-black border border-purple-200 hover:bg-purple-200 transition-colors shadow-sm"
+                title="직무 변경 (안전 <-> 보건)"
+              >
+                직무전환
+              </button>
+            )}
+          </div>
+          <span className="text-xs text-gray-500">
+            {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'} · {staff.experience}년차
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        {staff.empType === 'PROJECT' && (
+          <div className="flex items-center gap-1 text-[10px] font-bold text-red-500">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+            이동불가
+          </div>
+        )}
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.confirm(`${staff.name} 님을 이 현장에서 배치 해제하시겠습니까?`)) {
+              handleUnassign(staff, site);
+            }
+          }} 
+          className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors z-10 relative"
+          title="배치 해제"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, onSiteClick, onStaffClick }) {
   const {
     attributes,
@@ -43,13 +105,23 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
   };
 
   const requirements = calculateRequiredStaff(site);
-  const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL'));
-  const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.licenseType === 'HEALTH');
+  const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && h.assignedRole === 'SAFETY');
+  const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && h.assignedRole === 'HEALTH');
   const assignedSeniors = assignedSafety.filter(h => isSeniorQualified(h));
   
   const needSafety = Math.max(0, requirements.safety - assignedSafety.length);
   const needHealth = Math.max(0, requirements.health - assignedHealth.length);
   const needSenior = Math.max(0, requirements.senior - assignedSeniors.length);
+
+  const { updateStaff } = useStore();
+
+  const handleRoleToggle = (staff) => {
+    if (staff.licenseType !== 'DUAL') return;
+    const nextRole = staff.assignedRole === 'SAFETY' ? 'HEALTH' : 'SAFETY';
+    if (window.confirm(`${staff.name} 님의 직무를 ${nextRole === 'SAFETY' ? '안전관리자' : '보건관리자'}로 변경하시겠습니까?`)) {
+      updateStaff(staff.id, { assignedRole: nextRole });
+    }
+  };
 
   return (
     <div 
@@ -182,61 +254,53 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
         </div>
       </div>
 
-      <div className="p-8 pt-0">
-        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4">현재 배치 완료 인원</p>
-        <div className="space-y-2">
-          {[...assignedSafety, ...assignedHealth].length > 0 ? (
-            [...assignedSafety, ...assignedHealth].map(staff => (
-              <div 
-                key={staff.id} 
-                className="flex justify-between items-center bg-white border border-gray-100 px-4 py-3 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
-                onClick={() => onStaffClick(staff)}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-xs overflow-hidden">
-                    {staff.photo ? (
-                      <img src={staff.photo} alt={staff.name} className="w-full h-full object-cover" />
-                    ) : (
-                      staff.name[0]
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{staff.name}</span>
-                      <span className="text-[10px] text-gray-400 font-medium">{staff.rank}</span>
-                      <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase font-medium">
-                        {staff.licenseType}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {staff.empType === 'PROJECT' ? '프로젝트직' : '정규직'} · {staff.experience}년차
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  {staff.empType === 'PROJECT' && (
-                    <div className="flex items-center gap-1 text-[10px] font-bold text-red-500">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
-                      이동불가
-                    </div>
-                  )}
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUnassign(staff, site);
-                    }} 
-                    className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors z-10 relative"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-400 italic text-center py-4">배치된 인원이 없습니다.</p>
-          )}
+      <div className="p-8 pt-0 space-y-6">
+        {/* 안전관리자 명단 */}
+        <div className="bg-blue-50/30 p-4 rounded-2xl border border-blue-100/50">
+          <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+            안전관리자 배치 명단 ({assignedSafety.length})
+          </p>
+          <div className="space-y-2">
+            {assignedSafety.length > 0 ? (
+              assignedSafety.map(staff => (
+                <StaffRow 
+                  key={staff.id} 
+                  staff={staff} 
+                  site={site} 
+                  onStaffClick={onStaffClick} 
+                  handleUnassign={handleUnassign} 
+                  handleRoleToggle={handleRoleToggle}
+                />
+              ))
+            ) : (
+              <p className="text-xs text-gray-400 italic py-2 px-2">배치된 안전관리자가 없습니다.</p>
+            )}
+          </div>
+        </div>
+
+        {/* 보건관리자 명단 */}
+        <div className="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50">
+          <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            보건관리자 배치 명단 ({assignedHealth.length})
+          </p>
+          <div className="space-y-2">
+            {assignedHealth.length > 0 ? (
+              assignedHealth.map(staff => (
+                <StaffRow 
+                  key={staff.id} 
+                  staff={staff} 
+                  site={site} 
+                  onStaffClick={onStaffClick} 
+                  handleUnassign={handleUnassign} 
+                  handleRoleToggle={handleRoleToggle}
+                />
+              ))
+            ) : (
+              <p className="text-xs text-gray-400 italic py-2 px-2">배치된 보건관리자가 없습니다.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -58,7 +58,7 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
                 </div>
                 <button 
                   onClick={() => {
-                    assignStaff(staff.id, siteId);
+                    assignStaff(staff.id, siteId, roleType);
                     onClose();
                   }}
                   className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm"

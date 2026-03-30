@@ -165,13 +165,14 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           <div 
             {...attributes} 
             {...listeners} 
-            className="flex-shrink-0 cursor-grab active:cursor-grabbing bg-gray-50 border border-gray-100 text-gray-300 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 p-2.5 rounded-xl transition-all shadow-sm group/handle" 
+            className="flex-shrink-0 cursor-grab active:cursor-grabbing bg-gray-50 border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 p-2.5 px-3 rounded-xl transition-all shadow-sm group/handle flex flex-col items-center gap-1.5" 
             title="드래그하여 순서 변경"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/handle:scale-110 transition-transform">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover/handle:scale-110 transition-transform">
               <circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="19" r="1.5"/>
               <circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
             </svg>
+            <span className="text-[11px] font-black leading-none group-hover/handle:text-blue-600">이동</span>
           </div>
           <div className="cursor-pointer group-hover/click:text-blue-600 transition-colors" onClick={() => onSiteClick(site)}>
             <h2 className="text-2xl font-bold text-gray-900 group-hover/click:text-gray-900 flex items-center gap-2 hover:text-blue-600">
@@ -179,6 +180,14 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               <svg className="w-5 h-5 text-gray-300 hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
+              {site.endDate && (
+                <span className="text-sm font-black text-gray-700 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1 shadow-sm">
+                  <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  준공: {site.endDate}
+                </span>
+              )}
               <span className="text-sm font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100">{site.region}</span>
             </h2>
             <p className="text-gray-500 mt-3 flex flex-wrap items-center gap-y-2 gap-x-3">
@@ -256,20 +265,25 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
 
           {/* 경력직(Senior) 배치 현황 추가 */}
           {requirements.safety > 0 && requirements.senior > 0 && (
-            <div className="mb-4 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-bold text-indigo-700">필수 경력직 (7년↑)</span>
-                <span className="text-xs font-bold text-indigo-700">{assignedSeniors.length} / {requirements.senior}</span>
+            <div className="mb-5 p-4 bg-indigo-50/80 rounded-2xl border border-indigo-200 shadow-sm">
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="text-base font-black text-indigo-800 flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  필수 경력직 (7년↑)
+                </span>
+                <span className="text-lg font-black text-indigo-900">{assignedSeniors.length} / {requirements.senior}</span>
               </div>
-              <div className="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden">
+              <div className="h-2.5 w-full bg-indigo-100 rounded-full overflow-hidden shadow-inner">
                 <div 
-                  className="h-full bg-indigo-500 transition-all" 
+                  className="h-full bg-indigo-600 transition-all shadow-[0_0_8px_rgba(79,70,229,0.5)]" 
                   style={{ width: `${Math.min(100, (assignedSeniors.length / requirements.senior) * 100)}%` }}
                 ></div>
               </div>
               {needSenior > 0 && (
-                <p className="text-[10px] text-indigo-600 mt-1.5 font-medium flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                <p className="text-xs text-indigo-600 mt-2.5 font-black flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-lg w-fit border border-indigo-100 shadow-sm">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                   7년 이상 경력자 {needSenior}명 추가 필요
                 </p>
               )}

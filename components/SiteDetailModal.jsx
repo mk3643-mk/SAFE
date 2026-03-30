@@ -40,7 +40,8 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
               <div className="flex gap-2 mt-2">
                 <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{site.region}</span>
                 <span className="text-xs font-bold bg-gray-100 text-gray-700 px-2 py-1 rounded-full">{site.type === 'ARCH' ? '건축' : '토목'}</span>
-                {site.isSubProxy && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full">대리 선임 적용</span>}
+                {site.subAppointmentType === 'PROXY' && <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full">원도급 대리 선임</span>}
+                {site.subAppointmentType === 'DIRECT' && <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded-full">협력사 직접 선임</span>}
               </div>
             )}
           </div>
@@ -102,9 +103,23 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                 <label className="block text-xs font-bold text-gray-700 mb-1">준공 예정일</label>
                 <input type="date" required className="w-full px-3 py-2 border rounded-xl" value={formData.endDate || ''} onChange={e => setFormData({...formData, endDate: e.target.value})} />
               </div>
+              <div className="col-span-full bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                <label className="block text-xs font-bold text-blue-900 mb-2">협력사(수급인) 선임 방식</label>
+                <div className="flex gap-2 mb-3">
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'NONE' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>대상 없음</button>
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>협력사 직접 선임</button>
+                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>원도급사 대리 선임</button>
+                </div>
+                {formData.subAppointmentType !== 'NONE' && (
+                  <div className="mt-2">
+                    <label className="block text-[10px] font-bold text-blue-800 mb-1">대상 협력사 공사 금액 합계 (억 원)</label>
+                    <input type="number" className="w-full px-3 py-1.5 border rounded-lg text-sm" value={formData.subAmt || ''} onChange={e => setFormData({...formData, subAmt: e.target.value})} />
+                  </div>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-2">
-                <input type="checkbox" id="isSubProxy" checked={formData.isSubProxy || false} onChange={e => setFormData({...formData, isSubProxy: e.target.checked})} className="w-4 h-4 text-blue-600 rounded" />
-                <label htmlFor="isSubProxy" className="text-sm font-bold text-gray-700">안전보건관리담당자(대리) 선임 차감 기준 적용 여부</label>
+                <input type="checkbox" id="isDemolition" checked={formData.isDemolition || false} onChange={e => setFormData({...formData, isDemolition: e.target.checked})} className="w-4 h-4 text-red-600 rounded" />
+                <label htmlFor="isDemolition" className="text-sm font-bold text-red-700">철거공사 포함 여부 (50% 감면)</label>
               </div>
             </form>
           ) : (
@@ -146,8 +161,15 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border border-gray-100 p-3 rounded-xl">
                     <p className="text-xs text-gray-500 font-bold mb-1">안전관리자</p>
-                    <div className="flex justify-between items-end">
-                      <span className="text-xl font-black text-blue-600">{assignedSafety.length} <span className="text-sm text-gray-400 font-normal">/ {requirements.safety}명</span></span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xl font-black text-blue-600">
+                        {assignedSafety.length} <span className="text-sm text-gray-400 font-normal">/ {requirements.safety}명</span>
+                      </span>
+                      {requirements.proxyReq > 0 && (
+                        <p className="text-[10px] text-blue-500 font-bold mt-1">
+                          (원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="border border-gray-100 p-3 rounded-xl">

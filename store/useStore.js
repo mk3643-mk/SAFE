@@ -95,15 +95,15 @@ export const useStore = create((set, get) => ({
     }
   },
   
-  assignStaff: (staffId, siteId, roleType) => set((state) => ({
+  assignStaff: (staffId, siteId, roleType, assignmentType = 'MAIN') => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
-      staff.id === staffId ? { ...staff, assignedSiteId: siteId, assignedRole: roleType } : staff
+      staff.id === staffId ? { ...staff, assignedSiteId: siteId, assignedRole: roleType, assignmentType: assignmentType } : staff
     )
   })),
 
   unassignStaff: (staffId) => set((state) => ({
     hrPool: state.hrPool.map((staff) => 
-      staff.id === staffId ? { ...staff, assignedSiteId: null, assignedRole: null } : staff
+      staff.id === staffId ? { ...staff, assignedSiteId: null, assignedRole: null, assignmentType: null } : staff
     )
   })),
 

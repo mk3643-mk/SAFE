@@ -110,6 +110,13 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
     h.assignedSiteId === site.id && 
     (h.assignedRole === 'SAFETY' || (!h.assignedRole && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL')))
   );
+
+  // 선임 방식별 그룹화
+  const safetyMain = assignedSafety.filter(h => h.assignmentType === 'MAIN');
+  const safetyProxy = assignedSafety.filter(h => h.assignmentType === 'PROXY');
+  const safetyDirect = assignedSafety.filter(h => h.assignmentType === 'DIRECT');
+  const legacySafety = assignedSafety.filter(h => !h.assignmentType || (h.assignmentType !== 'MAIN' && h.assignmentType !== 'PROXY' && h.assignmentType !== 'DIRECT'));
+
   const assignedHealth = hrPool.filter(h => 
     h.assignedSiteId === site.id && 
     (h.assignedRole === 'HEALTH' || (!h.assignedRole && h.licenseType === 'HEALTH'))
@@ -149,9 +156,16 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               </svg>
               <span className="text-xs font-normal bg-gray-100 text-gray-500 px-2 py-1 rounded-full">{site.region}</span>
             </h2>
-            <p className="text-gray-500 mt-1 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              총 공사비 {site.totalAmount.toLocaleString()}억 원
+            <p className="text-gray-500 mt-1 flex flex-wrap items-center gap-y-1 gap-x-2">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                총 공사비 {site.totalAmount.toLocaleString()}억 원
+              </span>
+              {Number(site.subAmt) > 0 && (
+                <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 ring-1 ring-blue-200">
+                  기준 금액: {requirements.netAmt.toLocaleString()}억 원 (협력사 {site.subAmt}억 차감)
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -169,8 +183,11 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
-          {site.isSubProxy && (
-            <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-amber-100 mt-1 mr-2 inline-block">대리 선임 차감 적용</span>
+          {site.subAppointmentType === 'PROXY' && (
+            <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-amber-100 mt-1 mr-2 inline-block">원도급 대리 선임 적용</span>
+          )}
+          {site.subAppointmentType === 'DIRECT' && (
+            <span className="bg-purple-50 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-purple-100 mt-1 mr-2 inline-block">협력사 직접 선임</span>
           )}
           {requirements.isReducedPhase && (
             <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full ring-1 ring-blue-100 mt-1 inline-block text-center mr-2">공정 초기/말기 (50% 감면)</span>
@@ -181,10 +198,15 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
       <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/50">
         {/* 안전관리자 섹션 */}
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <p className="text-sm font-bold text-gray-700">안전관리자 현황</p>
-            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">법정: {requirements.safety}명</span>
-          </div>
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm font-bold text-gray-700">안전관리자 현황</p>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded font-bold">법정: {requirements.safety}명</span>
+                {requirements.proxyReq > 0 && (
+                  <span className="text-[10px] text-blue-500 font-bold">(원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})</span>
+                )}
+              </div>
+            </div>
           <div className="flex items-center gap-2 mb-4">
             <div className="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
               <div 
@@ -199,8 +221,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           {requirements.safety > 0 && requirements.senior > 0 && (
             <div className="mb-4 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-[11px] font-bold text-indigo-700">필수 경력직 (7년↑)</span>
-                <span className="text-[11px] font-bold text-indigo-700">{assignedSeniors.length} / {requirements.senior}</span>
+                <span className="text-xs font-bold text-indigo-700">필수 경력직 (7년↑)</span>
+                <span className="text-xs font-bold text-indigo-700">{assignedSeniors.length} / {requirements.senior}</span>
               </div>
               <div className="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden">
                 <div 
@@ -264,31 +286,91 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
       <div className="p-8 pt-0 space-y-6">
         {/* 안전관리자 명단 */}
         <div className="bg-blue-50/30 p-4 rounded-2xl border border-blue-100/50">
-          <p className="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-            안전관리자 배치 명단 ({assignedSafety.length})
-          </p>
-          <div className="space-y-2">
-            {assignedSafety.length > 0 ? (
-              assignedSafety.map(staff => (
-                <StaffRow 
-                  key={staff.id} 
-                  staff={staff} 
-                  site={site} 
-                  onStaffClick={onStaffClick} 
-                  handleUnassign={handleUnassign} 
-                  handleRoleToggle={handleRoleToggle}
-                />
-              ))
-            ) : (
+          <div className="space-y-4">
+            {/* 원도급사분 */}
+            {(safetyMain.length > 0 || (assignedSafety.length > 0 && requirements.mainSafetyReq > 0)) && (
+              <div>
+                <p className="text-xs flex items-center gap-1 font-bold text-blue-600 mb-2 bg-blue-100 px-2.5 py-1 rounded-lg w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  원도급사 선임 ({safetyMain.length} / {requirements.mainSafetyReq})
+                </p>
+                <div className="space-y-2">
+                  {safetyMain.map(staff => (
+                    <StaffRow 
+                      key={staff.id} staff={staff} site={site} 
+                      onStaffClick={onStaffClick} handleUnassign={handleUnassign} handleRoleToggle={handleRoleToggle}
+                    />
+                  ))}
+                  {safetyMain.length === 0 && requirements.mainSafetyReq > 0 && (
+                    <p className="text-[10px] text-gray-300 italic px-2">배치 대기 중...</p>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* 대리선임분 */}
+            {(safetyProxy.length > 0 || requirements.proxyReq > 0) && (
+              <div>
+                <p className="text-xs flex items-center gap-1 font-bold text-amber-600 mb-2 bg-amber-100 px-2.5 py-1 rounded-lg w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  협력사 대리선임 ({safetyProxy.length} / {requirements.proxyReq})
+                </p>
+                <div className="space-y-2">
+                  {safetyProxy.map(staff => (
+                    <StaffRow 
+                      key={staff.id} staff={staff} site={site} 
+                      onStaffClick={onStaffClick} handleUnassign={handleUnassign} handleRoleToggle={handleRoleToggle}
+                    />
+                  ))}
+                  {safetyProxy.length === 0 && (
+                    <p className="text-[10px] text-gray-300 italic px-2">배치가 필요한 대리 선임분입니다.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 직접선임분 */}
+            {safetyDirect.length > 0 && (
+              <div>
+                <p className="text-xs flex items-center gap-1 font-bold text-purple-600 mb-2 bg-purple-100 px-2.5 py-1 rounded-lg w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                  협력사 직접선임 ({safetyDirect.length})
+                </p>
+                <div className="space-y-2">
+                  {safetyDirect.map(staff => (
+                    <StaffRow 
+                      key={staff.id} staff={staff} site={site} 
+                      onStaffClick={onStaffClick} handleUnassign={handleUnassign} handleRoleToggle={handleRoleToggle}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 미분류 (기존 데이터) */}
+            {legacySafety.length > 0 && (
+              <div>
+                <p className="text-xs flex items-center gap-1 font-bold text-gray-500 mb-2 bg-gray-100 px-2.5 py-1 rounded-lg w-fit">● 미분류 데이터 ({legacySafety.length})</p>
+                <div className="space-y-2">
+                  {legacySafety.map(staff => (
+                    <StaffRow 
+                      key={staff.id} staff={staff} site={site} 
+                      onStaffClick={onStaffClick} handleUnassign={handleUnassign} handleRoleToggle={handleRoleToggle}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {assignedSafety.length === 0 && (
               <p className="text-xs text-gray-400 italic py-2 px-2">배치된 안전관리자가 없습니다.</p>
             )}
           </div>
         </div>
 
         {/* 보건관리자 명단 */}
-        <div className="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50">
-          <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
+          <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             보건관리자 배치 명단 ({assignedHealth.length})
           </p>

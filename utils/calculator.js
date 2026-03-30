@@ -23,9 +23,11 @@ export const calculateRequiredStaff = (site) => {
   const initialPhaseEnd = new Date(start.getTime() + fifteenPercentMs);
   const finalPhaseStart = new Date(end.getTime() - fifteenPercentMs);
 
-  // 6번 & 8번 기준: 수급인 차감 로직 적용 금액
-  // 원도급사는 (전체 - 수급인) 금액으로 기준 인원 산정
-  const netAmt = isSubProxy ? totalAmount - (subAmt || 0) : totalAmount;
+  // 6, 7, 8번 기준: 수급인 공사 금액 차감 로직
+  // 수급인이 직접 선임하든 원도급사가 대리 선임하든, 원도급사 기준 금액에서는 해당 금액을 제외함
+  const subAmtVal = Number(subAmt || 0);
+  const netAmt = (subAmtVal > 0) ? totalAmount - subAmtVal : totalAmount;
+  const subAppointmentType = site.subAppointmentType || (site.isSubProxy ? 'PROXY' : 'NONE');
 
   let safetyReq = 0;
   let seniorReq = 0;
@@ -60,10 +62,11 @@ export const calculateRequiredStaff = (site) => {
     seniorReq = Math.max(0, Math.ceil(seniorReq * 0.5));
   }
 
-  // 8번 기준: 대리 선임 시 협력사 1명분을 원도급사 관리 인원에서 별도로 보지 않고, 
-  // 원도급사 인원 + 대리 선임 1명으로 총합 계산
-  if (isSubProxy) {
-    safetyReq += 1;
+  // 8번 기준: 대리 선임 시 협력사 1명분을 가산
+  let proxyReq = 0;
+  if (subAppointmentType === 'PROXY') {
+    proxyReq = 1;
+    safetyReq += proxyReq;
   }
 
   // 보건관리자 기준
@@ -77,7 +80,10 @@ export const calculateRequiredStaff = (site) => {
     senior: seniorReq,
     isReducedPhase,
     initialPhaseEnd: initialPhaseEnd.toISOString().split('T')[0],
-    finalPhaseStart: finalPhaseStart.toISOString().split('T')[0]
+    finalPhaseStart: finalPhaseStart.toISOString().split('T')[0],
+    mainSafetyReq: safetyReq - proxyReq, // 원도급사 본분
+    proxyReq: proxyReq, // 대리 선임분
+    netAmt: netAmt
   };
 };
 

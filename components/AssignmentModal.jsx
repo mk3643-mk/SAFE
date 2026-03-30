@@ -6,6 +6,11 @@ import { isSeniorQualified } from '../utils/calculator.js';
 
 export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
   const { hrPool, assignStaff } = useStore();
+  const [assignmentType, setAssignmentType] = React.useState('MAIN');
+
+  React.useEffect(() => {
+    setAssignmentType('MAIN');
+  }, [roleType, isOpen]);
 
   if (!isOpen) return null;
 
@@ -17,7 +22,7 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h3 className="text-xl font-bold text-gray-800">
             가용 인력풀 조회 <span className="text-blue-600">({roleType === 'SAFETY' ? '안전' : '보건'})</span>
           </h3>
@@ -27,6 +32,32 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
             </svg>
           </button>
         </div>
+
+        {roleType === 'SAFETY' && (
+          <div className="px-6 py-4 border-b border-gray-50">
+            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">선임 구분 선택</p>
+            <div className="flex bg-gray-100 p-1 rounded-xl">
+              <button 
+                onClick={() => setAssignmentType('MAIN')} 
+                className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${assignmentType === 'MAIN' ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                원도급사
+              </button>
+              <button 
+                onClick={() => setAssignmentType('PROXY')} 
+                className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${assignmentType === 'PROXY' ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                협력사(대리)
+              </button>
+              <button 
+                onClick={() => setAssignmentType('DIRECT')} 
+                className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${assignmentType === 'DIRECT' ? 'bg-white text-blue-600 shadow-sm border border-blue-100' : 'text-gray-400 hover:text-gray-600'}`}
+              >
+                협력사(직접)
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="p-6 max-h-[400px] overflow-y-auto space-y-3">
           {availableStaff.length > 0 ? (
@@ -58,7 +89,7 @@ export default function AssignmentModal({ isOpen, onClose, siteId, roleType }) {
                 </div>
                 <button 
                   onClick={() => {
-                    assignStaff(staff.id, siteId, roleType);
+                    assignStaff(staff.id, siteId, roleType, assignmentType);
                     onClose();
                   }}
                   className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm"

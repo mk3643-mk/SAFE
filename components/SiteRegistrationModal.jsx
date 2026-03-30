@@ -11,7 +11,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     type: 'ARCH',
     totalAmount: 0,
     subAmt: 0,
-    isSubProxy: false,
+    subAppointmentType: 'NONE',
     isDemolition: false,
     startDate: '2026-03-01',
     endDate: ''
@@ -33,7 +33,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
       type: 'ARCH',
       totalAmount: 0,
       subAmt: 0,
-      isSubProxy: false,
+      subAppointmentType: 'NONE',
       endDate: ''
     });
   };
@@ -141,32 +141,49 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
             </div>
 
             <div className="col-span-full bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-blue-900">수급인 대리 선임 조건</p>
-                  <p className="text-xs text-blue-600 mt-1">100억 이상의 수급인 공사 금액이 있는 경우 대리 선임 차감이 적용됩니다.</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={formData.isSubProxy}
-                    onChange={(e) => setFormData({ ...formData, isSubProxy: e.target.checked })}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+              <label className="block text-sm font-bold text-blue-900 mb-3">협력사(수급인) 선임 방식</label>
+              <div className="flex gap-2 mb-4">
+                <button 
+                  type="button" 
+                  onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} 
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
+                    (formData.subAppointmentType === 'NONE' || !formData.subAppointmentType) ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
+                  }`}
+                >
+                  대상 없음
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} 
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
+                    formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
+                  }`}
+                >
+                  협력사 직접 선임
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} 
+                  className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-all ${
+                    formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400 hover:border-blue-300'
+                  }`}
+                >
+                  원도급사 대리 선임
+                </button>
               </div>
               
-              {formData.isSubProxy && (
-                <div className="mt-4 animate-in slide-in-from-top-2 duration-200">
-                  <label className="block text-xs font-bold text-blue-800 mb-2">대상 수급인 공사 금액 (억 원)</label>
+              {(formData.subAppointmentType === 'DIRECT' || formData.subAppointmentType === 'PROXY') && (
+                <div className="animate-in slide-in-from-top-2 duration-200">
+                  <label className="block text-xs font-bold text-blue-800 mb-2">대상 협력사 공사 금액 합계 (억 원)</label>
                   <input
+                    required
                     type="number"
-                    placeholder="0"
+                    placeholder="예: 120"
                     className="w-full px-4 py-2 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white"
                     value={formData.subAmt}
                     onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
                   />
+                  <p className="text-[10px] text-blue-600 mt-2 italic">* 입력된 금액만큼 원도급사 기준 금액에서 차감되어 계산됩니다. (시나리오 6, 8 반영)</p>
                 </div>
               )}
             </div>

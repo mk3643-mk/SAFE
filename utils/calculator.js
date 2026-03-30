@@ -18,6 +18,11 @@ export const calculateRequiredStaff = (site) => {
   const isFinalPhase = remainingDays <= totalDays * 0.15;
   const isReducedPhase = isInitialPhase || isFinalPhase;
 
+  // 15% 시점 날짜 계산
+  const fifteenPercentMs = totalDays * 0.15 * 24 * 60 * 60 * 1000;
+  const initialPhaseEnd = new Date(start.getTime() + fifteenPercentMs);
+  const finalPhaseStart = new Date(end.getTime() - fifteenPercentMs);
+
   // 6번 & 8번 기준: 수급인 차감 로직 적용 금액
   // 원도급사는 (전체 - 수급인) 금액으로 기준 인원 산정
   const netAmt = isSubProxy ? totalAmount - (subAmt || 0) : totalAmount;
@@ -70,7 +75,9 @@ export const calculateRequiredStaff = (site) => {
     safety: safetyReq,
     health: healthReq,
     senior: seniorReq,
-    isReducedPhase
+    isReducedPhase,
+    initialPhaseEnd: initialPhaseEnd.toISOString().split('T')[0],
+    finalPhaseStart: finalPhaseStart.toISOString().split('T')[0]
   };
 };
 

@@ -118,9 +118,26 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                   <p className="text-xs font-bold text-gray-400 uppercase">하도급 금액</p>
                   <p className="text-lg font-black text-gray-900 mt-1">{site.subAmt ? `${site.subAmt.toLocaleString()}억 원` : '해당없음'}</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-2xl col-span-2">
-                  <p className="text-xs font-bold text-gray-400 uppercase">준공 예정일</p>
-                  <p className="text-lg font-black text-gray-900 mt-1">{site.endDate || '미정'}</p>
+                <div className="grid grid-cols-2 gap-4 col-span-2">
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <p className="text-xs font-bold text-gray-400 uppercase">착공일</p>
+                    <p className="text-lg font-black text-gray-900 mt-1">{site.startDate || '-'}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <p className="text-xs font-bold text-gray-400 uppercase">준공 예정일</p>
+                    <p className="text-lg font-black text-gray-900 mt-1">{site.endDate || '-'}</p>
+                  </div>
+                </div>
+
+                <div className="col-span-2 grid grid-cols-2 gap-4 mt-1">
+                  <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">초기 15% 감면 기간</p>
+                    <p className="text-sm font-black text-blue-900">{site.startDate} ~ {requirements.initialPhaseEnd}</p>
+                  </div>
+                  <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                    <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">말기 15% 감면 기간</p>
+                    <p className="text-sm font-black text-blue-900">{requirements.finalPhaseStart} ~ {site.endDate}</p>
+                  </div>
                 </div>
               </div>
 

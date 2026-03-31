@@ -3,7 +3,7 @@ import { isSeniorQualified } from './calculator.js';
  * 인력 이동 및 배치 제한 검증 로직
  */
 export const validateAssignment = (staff, site, action = 'ASSIGN') => {
-  const today = new Date('2026-03-17'); // 현재 테스트 기준일
+  const today = new Date(); // 현재 실시간 기준일
   
   if (action === 'UNASSIGN') {
     // 1. (제거된 로직) 프로젝트직 이동 불가 로직 - 시각적 배지만 유지하고 기능적으로는 해제 허용

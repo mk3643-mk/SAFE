@@ -5,7 +5,7 @@ export const calculateRequiredStaff = (site) => {
   const { totalAmount, subAmt, isSubProxy, type, isDemolition, startDate, endDate } = site;
   
   // 0. 기본 변수 및 기간 설정
-  const today = new Date('2026-03-30'); // 시스템 기준일 (현재 날짜)
+  const today = new Date(); // 시스템 기준일 (현재 실시간 날짜)
   
   const demoStart = site.demoStartDate ? new Date(site.demoStartDate) : null;
   const demoEnd = site.demoEndDate ? new Date(site.demoEndDate) : null;
@@ -119,7 +119,7 @@ export const calculateAge = (birthDate) => {
   if (!birthDate) return 0;
   
   const start = new Date(birthDate);
-  const now = new Date('2026-03-30'); // 시스템 기준일 (현재 날짜)
+  const now = new Date(); // 시스템 기준일 (현재 실시간 날짜)
   
   if (isNaN(start.getTime())) return 0;
 
@@ -141,6 +141,18 @@ export const calculateExperienceYears = (startDate) => {
 };
 
 /**
+ * 입사일(경력 시작일)을 기준으로 현재 년차를 자동 계산 (만 계산 방식)
+ * 시작일이 없으면 입력된 정적 experience 값을 반환
+ */
+export const getStaffExperience = (staff) => {
+  if (!staff) return 0;
+  if (staff.careerStartDate) {
+    return calculateExperienceYears(staff.careerStartDate);
+  }
+  return Number(staff.experience || 0);
+};
+
+/**
  * 사용자가 정의한 '경력 7년차 이상(Senior)' 자격 충족 여부 판단
  * 1. 건설/산업안전기사: 7년 이상
  * 2. 산업안전지도사/건설안전기술사: 즉시 충족
@@ -150,7 +162,7 @@ export const isSeniorQualified = (staff) => {
   if (!staff || !staff.licenses) return false;
   
   const licenseList = Array.isArray(staff.licenses) ? staff.licenses : [];
-  const exp = Number(staff.experience || 0);
+  const exp = getStaffExperience(staff);
 
   // 1. 기술사/지도사는 경력 무관 즉시 충족
   if (licenseList.some(l => l.includes('기술사') || l.includes('지도사'))) {

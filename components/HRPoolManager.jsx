@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
 import StaffRegistrationModal from './StaffRegistrationModal.jsx';
 import StaffDetailModal from './StaffDetailModal.jsx';
-import { calculateAge, isSeniorQualified } from '../utils/calculator.js';
+import { calculateAge, calculateExperienceYears, getStaffExperience, isSeniorQualified } from '../utils/calculator.js';
 
 export default function HRPoolManager() {
   const { hrPool, sites, removeStaff } = useStore();
@@ -48,7 +48,7 @@ export default function HRPoolManager() {
     const matchesSite = filters.site === 'ALL' || staff.assignedSiteId === filters.site;
 
     // 6. 경력 필터 (7년 이상)
-    const matchesExperience = filters.experience === 'ALL' || (filters.experience === 'OVER_7' && staff.experience >= 7);
+    const matchesExperience = filters.experience === 'ALL' || (filters.experience === 'OVER_7' && getStaffExperience(staff) >= 7);
 
     // 7. 고용 형태 필터
     const matchesEmpType = filters.empType === 'ALL' || staff.empType === filters.empType;
@@ -219,12 +219,12 @@ export default function HRPoolManager() {
                       </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <p className="text-sm font-bold text-gray-600">
-                          {staff.birthDate ? `만 ${calculateAge(staff.birthDate)}세` : (staff.age ? `만 ${staff.age}세` : '-')} · 경력 {staff.experience}년차
+                          {staff.birthDate ? `만 ${calculateAge(staff.birthDate)}세` : (staff.age ? `만 ${staff.age}세` : '-')} · 경력 {getStaffExperience(staff)}년차
                         </p>
-                        {staff.experience >= 7 && (
+                        {getStaffExperience(staff) >= 7 && (
                           <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded text-[10px] font-black border border-amber-200/50 shadow-sm whitespace-nowrap">7년↑</span>
                         )}
-                        {isSeniorQualified(staff) && staff.experience < 7 && (
+                        {isSeniorQualified(staff) && getStaffExperience(staff) < 7 && (
                           <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-black border border-indigo-200/50 shadow-sm tooltip whitespace-nowrap" title="자격증 기준 경력 인정">경력인정</span>
                         )}
                       </div>

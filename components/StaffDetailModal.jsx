@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateExperienceYears, calculateAge } from '../utils/calculator.js';
+import { calculateExperienceYears, calculateAge, getStaffExperience } from '../utils/calculator.js';
 
 export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
   const { updateStaff } = useStore();
@@ -228,7 +228,7 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">총 경력</p>
-                  <p className="text-base font-black text-gray-900">{staff.experience}년차</p>
+                  <p className="text-base font-black text-gray-900">{getStaffExperience(staff)}년차</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">만 나이</p>

@@ -8,8 +8,28 @@ import { calculateRequiredStaff } from '../utils/calculator.js';
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const isLoaded = useStore((state) => state.isLoaded);
   const { sites, hrPool } = useStore();
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatDate = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}. ${mm}. ${dd}`;
+  };
+
+  const formatTime = (date) => {
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+  };
 
   // 현장 통계 계산
   let totalSafetyTO = 0;
@@ -158,7 +178,14 @@ export default function Page() {
           <div className="flex items-center bg-white px-12 py-6 rounded-3xl shadow-sm border border-gray-100 shrink-0">
             <div className="flex flex-col">
               <span className="text-base font-black text-gray-400 uppercase tracking-widest leading-tight">Today</span>
-              <span className="text-3xl font-black text-gray-900 uppercase whitespace-nowrap tracking-tight mt-2.5">2026. 03. 17</span>
+              <div className="flex items-baseline gap-3 mt-2.5">
+                <span className="text-3xl font-black text-gray-900 uppercase whitespace-nowrap tracking-tight">
+                  {formatDate(currentTime)}
+                </span>
+                <span className="text-xl font-bold text-blue-600 font-mono tracking-wider">
+                  {formatTime(currentTime)}
+                </span>
+              </div>
             </div>
           </div>
         </div>

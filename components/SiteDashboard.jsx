@@ -282,7 +282,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
                 ></div>
               </div>
               {needSenior > 0 && (
-                <p className="text-xs text-indigo-600 mt-2.5 font-black flex items-center gap-1.5 bg-white/60 px-3 py-1.5 rounded-lg w-fit border border-indigo-100 shadow-sm">
+                <p className="text-xs text-white mt-2.5 font-black flex items-center gap-1.5 bg-red-600 px-3 py-2 rounded-lg w-fit border border-red-700 shadow-lg animate-pulse">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                   7년 이상 경력자 {needSenior}명 추가 필요
                 </p>
@@ -291,11 +291,11 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           )}
 
           {needSafety > 0 && (
-            <div className="bg-red-50 border border-red-100 px-4 py-3 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-sm">
-              <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-red-600 border border-red-700 px-4 py-3.5 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-lg">
+              <svg className="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
               </svg>
-              <p className="text-red-700 font-black text-base">
+              <p className="text-white font-black text-lg">
                 {needSafety}명 추가 배치 필요
               </p>
             </div>
@@ -324,11 +324,11 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             <span className="text-base font-black text-emerald-600">{assignedHealth.length} / {requirements.health}</span>
           </div>
           {needHealth > 0 && (
-            <div className="bg-red-50 border border-red-100 px-4 py-3 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-sm">
-              <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-red-600 border border-red-700 px-4 py-3.5 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-lg">
+              <svg className="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 7a1 1 0 112 0v4a1 1 0 11-2 0V7zm1 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
               </svg>
-              <p className="text-red-700 font-black text-base">
+              <p className="text-white font-black text-lg">
                 {needHealth}명 추가 배치 필요
               </p>
             </div>

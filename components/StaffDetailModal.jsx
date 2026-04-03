@@ -358,8 +358,8 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                         <div className="flex items-center justify-between flex-1 min-w-0">
                           <p className="text-base font-black text-gray-900 truncate mr-3">{history.siteName}</p>
                           <div className="flex items-center gap-4 flex-shrink-0">
-                            <p className="text-xs font-bold text-gray-400 font-mono whitespace-nowrap">{history.startDate}~{history.endDate}</p>
-                            <span className="text-base font-black text-blue-600 whitespace-nowrap min-w-[70px] text-right">{history.duration}</span>
+                            <p className="text-sm font-bold text-gray-400 font-mono whitespace-nowrap">{history.startDate}~{history.endDate}</p>
+                            <span className="text-xl font-black text-blue-600 whitespace-nowrap min-w-[90px] text-right">{history.duration}</span>
                           </div>
                         </div>
                       </div>

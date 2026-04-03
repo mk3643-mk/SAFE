@@ -538,12 +538,24 @@ export default function SiteDashboard() {
       {/* 권역 필터 섹션 */}
       <div className="flex flex-wrap gap-2 p-1.5 bg-gray-100/50 rounded-2xl w-fit border border-gray-100">
         {regions.map(region => {
-          const count = region === '전체' 
-            ? sites.length 
+          const regionSites = region === '전체' 
+            ? sites 
             : sites.filter(s => {
                 if (region === '충남권' && s.region === '충청권') return true;
                 return s.region === region;
-              }).length;
+              });
+              
+          const count = regionSites.length;
+
+          const hasGap = regionSites.some(site => {
+            if (site.status !== 'APPROVED') return false;
+            const req = calculateRequiredStaff(site);
+            const assignedSafety = hrPool.filter(h => h.assignedSiteId === site.id && (h.assignedRole === 'SAFETY' || (!h.assignedRole && (h.licenseType === 'SAFETY' || h.licenseType === 'DUAL'))));
+            const assignedHealth = hrPool.filter(h => h.assignedSiteId === site.id && (h.assignedRole === 'HEALTH' || (!h.assignedRole && h.licenseType === 'HEALTH')));
+            const assignedSeniors = assignedSafety.filter(h => isSeniorQualified(h));
+            
+            return (req.safety > assignedSafety.length) || (req.health > assignedHealth.length) || (req.senior > assignedSeniors.length);
+          });
 
           return (
             <button
@@ -553,10 +565,11 @@ export default function SiteDashboard() {
                 selectedRegion === region 
                 ? 'bg-white text-blue-600 shadow-md ring-1 ring-black/5' 
                 : 'text-gray-500 hover:text-gray-800 hover:bg-white/50'
-              }`}
+              } ${hasGap ? 'ring-2 ring-red-500/20 animate-pulse' : ''}`}
             >
               {region}
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold transition-all ${
+                hasGap ? 'bg-red-600 text-white shadow-[0_0_10px_rgba(220,38,38,0.5)]' : 
                 selectedRegion === region ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-200 text-gray-500'
               }`}>
                 {count}

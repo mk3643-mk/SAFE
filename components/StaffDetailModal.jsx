@@ -308,6 +308,10 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                     {staff.assignedSiteId ? '배치중' : '배치가능'}
                   </p>
                 </div>
+                <div className="bg-gray-50 p-3 rounded-xl col-span-2">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">경력 시작일 (최초 선임일)</p>
+                  <p className="text-sm font-bold text-gray-900">{staff.careerStartDate || '-'}</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

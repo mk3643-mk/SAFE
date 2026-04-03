@@ -185,6 +185,11 @@ export default function MobileJoinPage() {
             </div>
 
             <div>
+              <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">거주지</label>
+              <input required type="text" placeholder="예: 서울시 강남구 역삼동" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.residence} onChange={(e) => setFormData({ ...formData, residence: e.target.value })} />
+            </div>
+
+            <div>
               <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">자격 구분</label>
               <div className="flex gap-2">
                 {['SAFETY', 'HEALTH', 'DUAL'].map(type => (
@@ -199,6 +204,15 @@ export default function MobileJoinPage() {
               <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">보유 자격증</label>
               <input type="text" placeholder="건설안전기사, 산업위생기사 등" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.licenses} onChange={(e) => setFormData({ ...formData, licenses: e.target.value })} />
               <p className="mt-2 text-[10px] text-gray-400 ml-1 font-bold">* 여러개인 경우 쉼표(,)로 구분해 주세요.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">경력 시작일 (최초 선임일)</label>
+              <input required type="date" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.careerStartDate} onChange={(e) => {
+                const dateVal = e.target.value;
+                setFormData({ ...formData, careerStartDate: dateVal, experience: dateVal ? calculateExperienceYears(dateVal) : '' });
+              }} />
+              <p className="mt-2 text-[10px] text-gray-400 ml-1 font-bold">* 안전/보건관리자로 최초 선임된 날짜를 입력해 주세요.</p>
             </div>
           </div>
         </section>

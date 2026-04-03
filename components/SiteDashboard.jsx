@@ -210,10 +210,22 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               )}
             </p>
             {requirements.currentPhase !== 'NONE' && (
-              <div className="mt-3">
+              <div className="mt-3 flex items-center">
                 <span className={`text-base font-black px-4 py-1.5 rounded-xl border shadow-sm inline-block ${requirements.isReducedPhase ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-indigo-100 text-indigo-800 border-indigo-200'}`}>
                   {requirements.phaseLabel} {requirements.isReducedPhase ? '(50% 감면)' : '(100% 선임)'}
                 </span>
+                <a 
+                  href="http://live2.camtour.net/livecam/view/13" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="ml-2 flex items-center gap-1.5 bg-gray-900 text-white px-4 py-1.5 rounded-xl text-sm font-black border border-gray-800 shadow-sm hover:bg-gray-800 transition-all active:scale-95 hover:shadow-md"
+                >
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  CCTV 현장 중계
+                </a>
               </div>
             )}
           </div>

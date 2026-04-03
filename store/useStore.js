@@ -68,7 +68,8 @@ export const useStore = create((set, get) => ({
     // 로드 시점에 경력 시작일이 있는 인력은 최신 년차로 자동 업데이트
     const processedHrPool = (data.hrPool || INITIAL_HR_POOL).map(staff => ({
       ...staff,
-      experience: staff.careerStartDate ? calculateExperienceYears(staff.careerStartDate) : staff.experience
+      experience: staff.careerStartDate ? calculateExperienceYears(staff.careerStartDate) : staff.experience,
+      status: staff.status || 'APPROVED'
     }));
     
     set({
@@ -126,7 +127,13 @@ export const useStore = create((set, get) => ({
   })),
 
   addStaff: (staff) => set((state) => ({
-    hrPool: [...state.hrPool, { ...staff, id: `HR_${Date.now()}`, assignedSiteId: null }]
+    hrPool: [...state.hrPool, { ...staff, id: `HR_${Date.now()}`, assignedSiteId: null, status: staff.status || 'APPROVED' }]
+  })),
+
+  approveStaff: (staffId) => set((state) => ({
+    hrPool: state.hrPool.map((staff) => 
+      staff.id === staffId ? { ...staff, status: 'APPROVED' } : staff
+    )
   })),
 
   removeStaff: (staffId) => set((state) => ({

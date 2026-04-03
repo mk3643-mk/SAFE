@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateExperienceYears, calculateAge } from '../utils/calculator.js';
+import { calculateExperienceYears, calculateAge, calculateDuration } from '../utils/calculator.js';
 
 export default function StaffRegistrationModal({ isOpen, onClose }) {
   const { addStaff } = useStore();
@@ -18,8 +18,36 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     residence: '',
     photo: null,
     birthDate: '',
-    age: 0
+    age: 0,
+    workHistory: []
   });
+
+  const addWorkHistory = () => {
+    setFormData({
+      ...formData,
+      workHistory: [...formData.workHistory, { type: 'OTHER', siteName: '', startDate: '', endDate: '', duration: '' }]
+    });
+  };
+
+  const removeWorkHistory = (index) => {
+    const newHistory = [...formData.workHistory];
+    newHistory.splice(index, 1);
+    setFormData({ ...formData, workHistory: newHistory });
+  };
+
+  const updateWorkHistory = (index, field, value) => {
+    const newHistory = [...formData.workHistory];
+    const item = { ...newHistory[index], [field]: value };
+    
+    if (field === 'startDate' || field === 'endDate') {
+      const s = field === 'startDate' ? value : item.startDate;
+      const e = field === 'endDate' ? value : item.endDate;
+      item.duration = calculateDuration(s, e);
+    }
+    
+    newHistory[index] = item;
+    setFormData({ ...formData, workHistory: newHistory });
+  };
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
@@ -73,7 +101,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       empType: formData.empType,
       licenseType: formData.licenseType,
       photo: formData.photo,
-      careerStartDate: formData.careerStartDate
+      careerStartDate: formData.careerStartDate,
+      workHistory: formData.workHistory
     });
     
     onClose();
@@ -89,7 +118,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       residence: '',
       empType: 'REGULAR',
       licenseType: 'SAFETY',
-      photo: null
+      photo: null,
+      workHistory: []
     });
   };
 
@@ -257,6 +287,95 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
                 value={formData.licenses}
                 onChange={(e) => setFormData({ ...formData, licenses: e.target.value })}
               />
+            </div>
+
+            {/* 근무 이력 섹션 */}
+            <div className="col-span-full border-t border-gray-100 pt-6 mt-2">
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-sm font-bold text-gray-700">근무 이력</label>
+                <button 
+                  type="button" 
+                  onClick={addWorkHistory}
+                  className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  항목 추가
+                </button>
+              </div>
+
+              {formData.workHistory.map((history, idx) => (
+                <div key={idx} className="bg-gray-50/50 rounded-2xl p-4 mb-4 border border-gray-100 relative group">
+                  <button 
+                    type="button" 
+                    onClick={() => removeWorkHistory(idx)}
+                    className="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 rounded-full p-1.5 shadow-sm border border-gray-100 hover:border-red-100 transition-colors z-10"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1">구분</label>
+                      <select 
+                        className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white text-xs font-bold"
+                        value={history.type}
+                        onChange={(e) => updateWorkHistory(idx, 'type', e.target.value)}
+                      >
+                        <option value="OTHER">타사</option>
+                        <option value="OUR">당사</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1">현장명</label>
+                      <input 
+                        type="text" 
+                        placeholder="현장명 입력" 
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-xs"
+                        value={history.siteName}
+                        onChange={(e) => updateWorkHistory(idx, 'siteName', e.target.value)}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1">시작일</label>
+                      <input 
+                        type="date" 
+                        className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-[10px]"
+                        value={history.startDate}
+                        onChange={(e) => updateWorkHistory(idx, 'startDate', e.target.value)}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1">종료일</label>
+                      <input 
+                        type="date" 
+                        className="w-full px-2 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-[10px]"
+                        value={history.endDate}
+                        onChange={(e) => updateWorkHistory(idx, 'endDate', e.target.value)}
+                      />
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1">근무기간 (자동)</label>
+                      <input 
+                        readOnly 
+                        type="text" 
+                        placeholder="-" 
+                        className="w-full px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 text-gray-500 transition-all outline-none cursor-not-allowed font-bold text-xs"
+                        value={history.duration}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {formData.workHistory.length === 0 && (
+                <div className="p-10 border-2 border-dashed border-gray-100 rounded-3xl text-center">
+                  <p className="text-sm text-gray-400">근무 이력이 없습니다. '항목 추가'를 눌러 등록해 주세요.</p>
+                </div>
+              )}
             </div>
 
             {/* 자격 구분 및 고용 형태 */}

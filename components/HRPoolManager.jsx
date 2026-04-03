@@ -9,7 +9,9 @@ import { calculateAge, calculateExperienceYears, getStaffExperience, isSeniorQua
 export default function HRPoolManager() {
   const { hrPool, sites, removeStaff } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [detailModalStaff, setDetailModalStaff] = useState(null);
+  const { approveStaff } = useStore();
   
   // 검색 및 필터 상태
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,8 +43,9 @@ export default function HRPoolManager() {
     const isAssigned = !!staff.assignedSiteId;
     const matchesStatus = 
       filters.status === 'ALL' || 
-      (filters.status === 'ASSIGNED' && isAssigned) || 
-      (filters.status === 'AVAILABLE' && !isAssigned);
+      (filters.status === 'ASSIGNED' && isAssigned && staff.status === 'APPROVED') || 
+      (filters.status === 'AVAILABLE' && !isAssigned && staff.status === 'APPROVED') ||
+      (filters.status === 'PENDING' && staff.status === 'PENDING');
     
     // 5. 현장 필터
     const matchesSite = filters.site === 'ALL' || staff.assignedSiteId === filters.site;
@@ -84,15 +87,26 @@ export default function HRPoolManager() {
             </div>
           </div>
 
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-gray-900 text-white px-12 py-5 rounded-2xl font-black text-lg hover:bg-gray-800 transition-all shadow-xl active:scale-[0.96] flex items-center gap-3"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 4v16m8-8H4" />
-            </svg>
-            신규 인력 등록
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setIsQRModalOpen(true)}
+              className="bg-white text-gray-700 w-[68px] h-[68px] rounded-2xl border-2 border-gray-100 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm flex items-center justify-center group"
+              title="QR 코드로 직접 등록"
+            >
+              <svg className="w-8 h-8 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m0 11v1m4-8h1m-11 0h1m2 10h1m2-10h1m2 10h1m2-10h1m2 10h1m2-10h1m2 10h1M5 5h3v3H5V5zm0 11h3v3H5v-3zm11-11h3v3h-3V5z" />
+              </svg>
+            </button>
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-gray-900 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-gray-800 transition-all shadow-xl active:scale-[0.96] flex items-center gap-3"
+            >
+              <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 4v16m8-8H4" />
+              </svg>
+              신규 인력 등록
+            </button>
+          </div>
         </div>
 
         {/* 필터 바 */}
@@ -138,6 +152,7 @@ export default function HRPoolManager() {
             <option value="ALL">상태 전체</option>
             <option value="ASSIGNED">배치중</option>
             <option value="AVAILABLE">가용인력</option>
+            <option value="PENDING">승인대기</option>
           </select>
 
           <select 
@@ -263,24 +278,39 @@ export default function HRPoolManager() {
                 <td className="px-8 py-6">
                   <div className="flex items-center justify-between gap-6">
                     <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-black ${
+                      staff.status === 'PENDING' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
                       staff.assignedSiteId ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                     }`}>
-                      {staff.assignedSiteId ? '배치중' : '가용'}
+                      {staff.status === 'PENDING' ? '승인대기' : (staff.assignedSiteId ? '배치중' : '가용')}
                     </span>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (window.confirm(`${staff.name} 님의 인력 정보를 완전 삭제하시겠습니까?`)) {
-                          removeStaff(staff.id);
-                        }
-                      }}
-                      className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
-                      title="인력 정보 삭제"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    {staff.status === 'PENDING' ? (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`${staff.name} 님의 등록을 승인하시겠습니까?`)) {
+                            approveStaff(staff.id);
+                          }
+                        }}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                      >
+                        승인
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`${staff.name} 님의 인력 정보를 완전 삭제하시겠습니까?`)) {
+                            removeStaff(staff.id);
+                          }
+                        }}
+                        className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                        title="인력 정보 삭제"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -314,6 +344,46 @@ export default function HRPoolManager() {
         staff={detailModalStaff}
         sites={sites}
       />
+
+      {/* QR 등록 안내 모달 */}
+      {isQRModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[40px] shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-10 text-center">
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">모바일 직접 입사지원</h3>
+              <p className="text-gray-500 font-bold mb-8">신규 인력이 아래 QR 코드를 스캔하여<br />직접 정보를 입력할 수 있습니다.</p>
+              
+              <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 mb-8 flex justify-center">
+                {/* QR 코드 생성 API 사용 (데모용) */}
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin + '/join' : '')}`} 
+                  alt="QR Code"
+                  className="w-48 h-48 rounded-2xl shadow-sm border-4 border-white"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => setIsQRModalOpen(false)}
+                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-lg shadow-xl hover:bg-gray-800 transition-all"
+                >
+                  닫기
+                </button>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Scanning URL: /join</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute inset-0 -z-10" onClick={() => setIsQRModalOpen(false)}></div>
+        </div>
+      )}
     </div>
   );
 }

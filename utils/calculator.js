@@ -182,3 +182,32 @@ export const isSeniorQualified = (staff) => {
   // 4. 기타(기본 '건설안전' 등)는 7년 기준으로 처리
   return exp >= 7;
 };
+
+/**
+ * 두 날짜 사이의 기간을 계산 (X년 Y개월 형식)
+ */
+export const calculateDuration = (startDate, endDate) => {
+  if (!startDate || !endDate) return "";
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return "";
+
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth();
+  let days = end.getDate() - start.getDate();
+
+  if (days < 0) {
+    months -= 1;
+  }
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  const result = [];
+  if (years > 0) result.push(`${years}년`);
+  if (months > 0) result.push(`${months}개월`);
+  
+  return result.length > 0 ? result.join(' ') : '1개월 미만';
+};

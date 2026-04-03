@@ -275,7 +275,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
             <div className="flex flex-col items-end">
               <span className={`text-base font-black transition-all ${
                 assignedSafety.length >= requirements.safety 
-                ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
+                ? `bg-blue-600 text-white px-3 py-1 rounded-full shadow-lg ${assignedSafety.length > requirements.safety ? 'animate-pulse ring-2 ring-blue-300' : ''}`
                 : 'text-blue-600'
               }`}>
                 {assignedSafety.length} / {requirements.safety}
@@ -347,8 +347,8 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
               ></div>
             </div>
             <span className={`text-base font-black transition-all ${
-              assignedHealth.length > requirements.health 
-              ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
+              assignedHealth.length >= requirements.health 
+              ? `bg-blue-600 text-white px-3 py-1 rounded-full shadow-lg ${assignedHealth.length > requirements.health ? 'animate-pulse ring-2 ring-blue-300' : ''}`
               : 'text-emerald-600'
             }`}>
               {assignedHealth.length} / {requirements.health}

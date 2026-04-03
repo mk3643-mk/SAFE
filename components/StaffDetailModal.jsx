@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore.js';
-import { calculateExperienceYears, calculateAge, getStaffExperience } from '../utils/calculator.js';
+import { calculateExperienceYears, calculateAge, getStaffExperience, calculateDuration } from '../utils/calculator.js';
 
 export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
   const { updateStaff } = useStore();
@@ -11,11 +11,39 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
     if (staff) {
       setFormData({
         ...staff,
-        licensesString: staff.licenses ? staff.licenses.join(', ') : ''
+        licensesString: staff.licenses ? staff.licenses.join(', ') : '',
+        workHistory: staff.workHistory || []
       });
       setIsEditing(false);
     }
   }, [staff, isOpen]);
+
+  const addWorkHistory = () => {
+    setFormData({
+      ...formData,
+      workHistory: [...(formData.workHistory || []), { type: 'OTHER', siteName: '', startDate: '', endDate: '', duration: '' }]
+    });
+  };
+
+  const removeWorkHistory = (index) => {
+    const newHistory = [...formData.workHistory];
+    newHistory.splice(index, 1);
+    setFormData({ ...formData, workHistory: newHistory });
+  };
+
+  const updateWorkHistory = (index, field, value) => {
+    const newHistory = [...formData.workHistory];
+    const item = { ...newHistory[index], [field]: value };
+    
+    if (field === 'startDate' || field === 'endDate') {
+      const s = field === 'startDate' ? value : item.startDate;
+      const e = field === 'endDate' ? value : item.endDate;
+      item.duration = calculateDuration(s, e);
+    }
+    
+    newHistory[index] = item;
+    setFormData({ ...formData, workHistory: newHistory });
+  };
 
   if (!isOpen || !staff) return null;
 
@@ -62,7 +90,8 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
     updateStaff(staff.id, {
       ...formData,
       experience: Number(formData.experience),
-      licenses: parsedLicenses.length > 0 ? parsedLicenses : ['없음']
+      licenses: parsedLicenses.length > 0 ? parsedLicenses : ['없음'],
+      workHistory: formData.workHistory
     });
     setIsEditing(false);
   };
@@ -215,6 +244,38 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 <label className="block text-xs font-bold text-gray-700 mb-1">자격증 현황 (쉼표로 구분)</label>
                 <textarea className="w-full px-3 py-2 border rounded-xl" rows={2} value={formData.licensesString || ''} onChange={e => setFormData({...formData, licensesString: e.target.value})} />
               </div>
+
+              {/* 근무 이력 수정 */}
+              <div className="border-t border-gray-100 pt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-xs font-bold text-gray-700">근무 이력</label>
+                  <button type="button" onClick={addWorkHistory} className="bg-blue-50 text-blue-600 px-2 py-1 rounded-lg text-[10px] font-bold hover:bg-blue-100">+ 추가</button>
+                </div>
+                <div className="space-y-3">
+                  {(formData.workHistory || []).map((history, idx) => (
+                    <div key={idx} className="bg-gray-50 p-3 rounded-xl border border-gray-100 relative slide-in-from-right-2 animate-in duration-200">
+                      <button type="button" onClick={() => removeWorkHistory(idx)} className="absolute -top-1.5 -right-1.5 bg-white text-red-500 w-5 h-5 rounded-full shadow-sm border border-gray-100 flex items-center justify-center">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <select className="px-2 py-1.5 rounded-lg border text-[10px] font-bold outline-none bg-white" value={history.type} onChange={(e) => updateWorkHistory(idx, 'type', e.target.value)}>
+                          <option value="OTHER">타사</option>
+                          <option value="OUR">당사</option>
+                        </select>
+                        <input type="text" placeholder="현장명" className="px-2 py-1.5 rounded-lg border text-[10px] outline-none" value={history.siteName} onChange={(e) => updateWorkHistory(idx, 'siteName', e.target.value)} />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <input type="date" className="px-2 py-1.5 rounded-lg border text-[8px] outline-none" value={history.startDate} onChange={(e) => updateWorkHistory(idx, 'startDate', e.target.value)} />
+                        <input type="date" className="px-2 py-1.5 rounded-lg border text-[8px] outline-none" value={history.endDate} onChange={(e) => updateWorkHistory(idx, 'endDate', e.target.value)} />
+                        <input readOnly type="text" placeholder="-" className="px-2 py-1.5 rounded-lg border bg-gray-100 text-[8px] font-black text-gray-500 text-center" value={history.duration} />
+                      </div>
+                    </div>
+                  ))}
+                  {(formData.workHistory || []).length === 0 && (
+                    <p className="text-center py-4 bg-gray-50 rounded-xl text-[10px] text-gray-400 font-bold border-2 border-dashed border-gray-100">이력이 없습니다.</p>
+                  )}
+                </div>
+              </div>
             </form>
           ) : (
             <>
@@ -279,6 +340,27 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                   </p>
                 </div>
               </div>
+
+              {/* 근무 이력 보기 */}
+              {staff.workHistory && staff.workHistory.length > 0 && (
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase mb-2">근무 이력</p>
+                  <div className="space-y-2">
+                    {staff.workHistory.map((history, idx) => (
+                      <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold ${history.type === 'OUR' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-600'}`}>
+                            {history.type === 'OUR' ? '당사' : '타사'}
+                          </span>
+                          <span className="text-[9px] font-black text-blue-600">{history.duration}</span>
+                        </div>
+                        <p className="text-xs font-bold text-gray-800 truncate">{history.siteName}</p>
+                        <p className="text-[10px] text-gray-500 mt-0.5 leading-none">{history.startDate} ~ {history.endDate}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

@@ -79,18 +79,16 @@ function StaffRow({ staff, site, onStaffClick, handleUnassign, handleRoleToggle 
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {staff.empType === 'PROJECT' && (
-          <div className="flex items-center gap-1 text-[10px] font-bold text-red-500">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
-            이동불가
+        {(staff.empType === 'PROJECT' || (site.totalAmount >= 1500 && isSeniorQualified(staff))) && (
+          <div className="flex items-center gap-1 text-[10px] font-bold text-red-500 whitespace-nowrap" title={staff.empType === 'PROJECT' ? '프로젝트직 계약 인력' : '대형현장 필수 고경력자'}>
+            <svg className="w-3.2 h-3.2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+            이동관리
           </div>
         )}
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            if (window.confirm(`${staff.name} 님을 이 현장에서 배치 해제하시겠습니까?`)) {
-              handleUnassign(staff, site);
-            }
+            handleUnassign(staff, site);
           }} 
           className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors z-10 relative"
           title="배치 해제"
@@ -557,11 +555,21 @@ export default function SiteDashboard() {
 
   const handleUnassign = (staff, site) => {
     const validation = validateAssignment(staff, site, 'UNASSIGN');
-    if (!validation.valid) {
+    
+    if (validation.warning) {
+      if (!window.confirm(validation.message)) {
+        return;
+      }
+      // 경고 확인 후에는 기존의 일반 확인창 없이 바로 처리 (안내 팝업이 확인창 역할을 겸함)
+      unassignStaff(staff.id);
+    } else if (!validation.valid) {
       alert(validation.message);
       return;
+    } else {
+      if (window.confirm(`${staff.name} 님을 이 현장에서 배치 해제하시겠습니까?`)) {
+        unassignStaff(staff.id);
+      }
     }
-    unassignStaff(staff.id);
   };
 
   return (

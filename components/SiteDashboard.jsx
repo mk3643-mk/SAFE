@@ -459,9 +459,10 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
 }
 
 export default function SiteDashboard() {
-  const { hrPool, sites, siteDirectoryPdf, setSiteDirectoryPdf, safetyStandardsPdf, setSafetyStandardsPdf, unassignStaff, removeSite, reorderSites } = useStore();
+  const { hrPool, sites, siteDirectoryPdf, setSiteDirectoryPdf, safetyStandardsPdf, setSafetyStandardsPdf, unassignStaff, removeSite, reorderSites, approveSite } = useStore();
   const [modal, setModal] = useState({ open: false, siteId: null, roleType: null });
   const [isRegModalOpen, setIsRegModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [pdfModal, setPdfModal] = useState({ open: false, data: null, title: '' });
   const [selectedRegion, setSelectedRegion] = useState('전체');
   
@@ -659,6 +660,20 @@ export default function SiteDashboard() {
             </div>
           </div>
 
+          {/* 큐알 등록 버튼 */}
+          <button 
+            onClick={() => setIsQrModalOpen(true)}
+            className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-indigo-500 hover:shadow-md transition-all active:scale-95"
+            title="모바일 사이트로 현장 등록용 QR코드 열기"
+          >
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M5 8V7a3 3 0 013-3h10a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <span>현장 등록 QR</span>
+          </button>
+
           {/* 신규 등록 버튼 */}
           <button 
             onClick={() => setIsRegModalOpen(true)}
@@ -674,18 +689,64 @@ export default function SiteDashboard() {
         </div>
       </div>
 
+      {/* 승인 대기 중인 현장 목록 (펜딩 섹션) */}
+      {sites.some(s => s.status === 'PENDING') && (
+        <div className="bg-indigo-50/50 p-8 rounded-[32px] border-2 border-dashed border-indigo-200">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="w-2.5 h-6 bg-indigo-600 rounded-full"></span>
+            <h3 className="text-xl font-black text-indigo-900">현장 승인 대기 목록 ({sites.filter(s => s.status === 'PENDING').length})</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sites.filter(s => s.status === 'PENDING').map(site => (
+              <div key={site.id} className="bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm relative group overflow-hidden">
+                <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-600 text-white text-[10px] font-black rounded-bl-xl shadow-md">승인 대기</div>
+                <h4 className="text-lg font-black text-gray-900 mb-2 truncate pr-16">{site.name}</h4>
+                <div className="space-y-2 mb-6">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-gray-400">권역</span>
+                    <span className="text-gray-700">{site.region}</span>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-gray-400">현장 소장</span>
+                    <span className="text-gray-700">{site.managerName}</span>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-gray-400">공사 금액</span>
+                    <span className="text-gray-700">{site.totalAmount}억 원</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => approveSite(site.id)}
+                    className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm hover:bg-indigo-700 shadow-md transition-all active:scale-95"
+                  >
+                    승인
+                  </button>
+                  <button 
+                    onClick={() => removeSite(site.id)}
+                    className="px-3 py-2.5 bg-gray-100 text-gray-500 rounded-xl font-black text-sm hover:bg-red-50 hover:text-red-500 transition-all"
+                  >
+                    거절
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={selectedRegion === '전체' ? handleDragEnd : undefined}
       >
         <SortableContext 
-          items={filteredSites.map(s => s.id)}
+          items={filteredSites.filter(s => s.status === 'APPROVED').map(s => s.id)}
           strategy={rectSortingStrategy}
           disabled={selectedRegion !== '전체'}
         >
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {filteredSites.map((site) => (
+            {filteredSites.filter(s => s.status === 'APPROVED').map((site) => (
               <SortableSiteCard
                 key={site.id}
                 site={site}
@@ -751,6 +812,49 @@ export default function SiteDashboard() {
                 className="w-full h-full border-none"
                 title={pdfModal.title}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 현장 등록 QR 모달 */}
+      {isQrModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[110] p-4">
+          <div className="bg-white rounded-[40px] shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-8 pb-4 flex justify-between items-center">
+              <h3 className="text-xl font-black text-gray-900">현장 등록용 QR 코드</h3>
+              <button 
+                onClick={() => setIsQrModalOpen(false)}
+                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-100 rounded-full transition-all"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-10 flex flex-col items-center gap-8">
+              <div className="p-6 bg-white rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(window.location.origin + '/join-site')}`} 
+                  alt="QR Code" 
+                  className="w-56 h-56"
+                />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-lg font-black text-gray-900">스마트폰으로 스캔하세요</p>
+                <p className="text-sm font-bold text-gray-400 leading-relaxed">
+                  현장 소장님이 직접 현장 정보를<br />
+                  입력하고 등록 신청을 보낼 수 있습니다.
+                </p>
+              </div>
+            </div>
+            <div className="p-8 pt-0">
+              <button 
+                onClick={() => setIsQrModalOpen(false)}
+                className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-lg shadow-xl shadow-gray-200 active:scale-95 transition-all"
+              >
+                닫기
+              </button>
             </div>
           </div>
         </div>

@@ -72,9 +72,14 @@ export const useStore = create((set, get) => ({
       status: staff.status || 'APPROVED'
     }));
     
+    const processedSites = (data.sites || INITIAL_SITES).map(site => ({
+      ...site,
+      status: site.status || 'APPROVED'
+    }));
+    
     set({
       hrPool: processedHrPool,
-      sites: data.sites || INITIAL_SITES,
+      sites: processedSites,
       siteDirectoryPdf: data.siteDirectoryPdf || null,
       safetyStandardsPdf: data.safetyStandardsPdf || null,
       isLoaded: true
@@ -145,7 +150,13 @@ export const useStore = create((set, get) => ({
   })),
 
   addSite: (site) => set((state) => ({
-    sites: [...state.sites, { ...site, id: `S_${Date.now()}` }]
+    sites: [...state.sites, { ...site, id: `S_${Date.now()}`, status: site.status || 'APPROVED' }]
+  })),
+
+  approveSite: (siteId) => set((state) => ({
+    sites: state.sites.map((site) => 
+      site.id === siteId ? { ...site, status: 'APPROVED' } : site
+    )
   })),
 
   removeSite: (siteId) => set((state) => ({

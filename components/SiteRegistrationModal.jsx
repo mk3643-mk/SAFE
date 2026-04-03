@@ -144,7 +144,7 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
               <div className="flex items-center justify-between bg-red-50/50 p-4 rounded-2xl border border-red-100 mb-6">
                 <div>
                   <p className="text-sm font-bold text-red-900">철거공사 포함 여부</p>
-                  <p className="text-xs text-red-600 mt-1">철거공사가 있는 경우 해당 기간 동안 50% 감면이 적용됩니다.</p>
+                  <p className="text-xs text-red-600 mt-1">철거공사가 있는 경우 해당 기간 동안 50% 감면이 적용됩니다. (종료 시 미체크)</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input

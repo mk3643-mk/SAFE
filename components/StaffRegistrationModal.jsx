@@ -133,8 +133,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-[40px] shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <div>
             <h3 className="text-2xl font-bold text-gray-900">신규 인력 등록</h3>
@@ -147,7 +147,8 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <form id="staff-reg-form" onSubmit={handleSubmit} className="p-8 space-y-6">
           
           {/* 사진 업로드 섹션 */}
           <div className="flex flex-col items-center mb-6">
@@ -497,22 +498,25 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
 
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-4 rounded-xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="flex-[2] py-4 rounded-xl font-bold text-white bg-gray-900 hover:bg-gray-800 transition-all shadow-lg active:scale-[0.98]"
-            >
-              인력 등록 완료
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
+
+        <div className="p-8 border-t border-gray-100 bg-gray-50/50 flex gap-4 mt-auto">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-4 rounded-2xl font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
+          >
+            취소
+          </button>
+          <button
+            form="staff-reg-form"
+            type="submit"
+            className="flex-[2] py-4 rounded-2xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg active:scale-[0.98] shadow-blue-200"
+          >
+            인력 등록 완료
+          </button>
+        </div>
       </div>
     </div>
   );

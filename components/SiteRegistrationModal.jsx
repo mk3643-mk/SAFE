@@ -140,6 +140,45 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
               />
             </div>
 
+            <div className="md:col-span-full bg-blue-50/30 p-6 rounded-2xl border border-blue-100/50 space-y-4">
+              <label className="block text-sm font-bold text-gray-700">협력사(수급인) 선임 방식</label>
+              <div className="flex gap-2">
+                {[
+                  { id: 'NONE', label: '대상 없음' },
+                  { id: 'DIRECT', label: '협력사 직접' },
+                  { id: 'PROXY', label: '원도급 대리' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, subAppointmentType: item.id })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.subAppointmentType === item.id 
+                      ? 'bg-blue-600 text-white shadow-md' 
+                      : 'bg-white text-gray-500 border border-gray-100 hover:bg-gray-50'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              
+              {formData.subAppointmentType !== 'NONE' && (
+                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="block text-xs font-bold text-gray-500 mb-2">협력사 공사 금액 합계 (억 원)</label>
+                  <input
+                    required
+                    type="number"
+                    placeholder="0"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white font-bold"
+                    value={formData.subAmt}
+                    onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
+                  />
+                  <p className="text-[10px] text-blue-600 mt-2 font-bold">* 입력하신 금액에 따라 협력사 안전관리자 선임 의무가 자동으로 계산됩니다.</p>
+                </div>
+              )}
+            </div>
+
             <div className="col-span-full border-t border-gray-100 pt-6">
               <div className="flex items-center justify-between bg-red-50/50 p-4 rounded-2xl border border-red-100 mb-6">
                 <div>

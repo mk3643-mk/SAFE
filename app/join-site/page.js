@@ -107,6 +107,44 @@ export default function MobileSiteJoinPage() {
               <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">총 공사금액 (억 원)</label>
               <input required type="number" placeholder="0" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-900 outline-none transition-all" value={formData.totalAmount} onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })} />
             </div>
+
+            <div className="p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100/50 space-y-4 shadow-inner">
+              <label className="block text-sm font-black text-gray-500">협력사(수급인) 선임 방식</label>
+              <div className="flex gap-2">
+                {[
+                  { id: 'NONE', label: '대상 없음' },
+                  { id: 'DIRECT', label: '협력사 직접' },
+                  { id: 'PROXY', label: '원도급 대리' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, subAppointmentType: item.id })}
+                    className={`flex-1 py-3 rounded-xl text-[10px] font-black transition-all ${
+                      formData.subAppointmentType === item.id 
+                      ? 'bg-indigo-600 text-white shadow-lg' 
+                      : 'bg-white text-gray-400 border border-indigo-100/50'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              
+              {formData.subAppointmentType !== 'NONE' && (
+                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="block text-[10px] font-black text-indigo-400 mb-1.5 ml-1">협력사 공사 금액 합계 (억 원)</label>
+                  <input
+                    required
+                    type="number"
+                    placeholder="0"
+                    className="w-full px-5 py-4 rounded-2xl bg-white border-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-900 outline-none shadow-sm"
+                    value={formData.subAmt}
+                    onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </section>
 

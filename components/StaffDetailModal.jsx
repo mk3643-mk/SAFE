@@ -98,7 +98,7 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4 text-left">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <div className="flex items-center gap-4 relative">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-2xl shadow-inner overflow-hidden flex-shrink-0 relative group">
@@ -351,17 +351,13 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                   <p className="text-xs font-bold text-gray-400 uppercase mb-3">근무 이력</p>
                   <div className="bg-gray-50/50 rounded-2xl border border-gray-100 overflow-hidden">
                     {staff.workHistory.map((history, idx) => (
-                      <div key={idx} className="flex items-center gap-4 px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                        <span className={`text-[10px] px-2 py-1 rounded-lg font-bold flex-shrink-0 ${history.type === 'OUR' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-600'}`}>
+                      <div key={idx} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                        <span className={`text-sm px-2.5 py-1.5 rounded-lg font-black flex-shrink-0 ${history.type === 'OUR' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-600'}`}>
                           {history.type === 'OUR' ? '당사' : '타사'}
                         </span>
-                        <div className="flex items-center justify-between flex-1 min-w-0">
-                          <p className="text-base font-black text-gray-900 truncate mr-3">{history.siteName}</p>
-                          <div className="flex items-center gap-4 flex-shrink-0">
-                            <p className="text-sm font-bold text-gray-400 font-mono whitespace-nowrap">{history.startDate}~{history.endDate}</p>
-                            <span className="text-xl font-black text-blue-600 whitespace-nowrap min-w-[90px] text-right">{history.duration}</span>
-                          </div>
-                        </div>
+                        <p className="text-sm font-black text-gray-900 truncate">{history.siteName}</p>
+                        <p className="text-sm font-black text-gray-400 font-mono whitespace-nowrap">{history.startDate}~{history.endDate}</p>
+                        <span className="text-sm font-black text-blue-600 whitespace-nowrap text-right">{history.duration}</span>
                       </div>
                     ))}
                   </div>

@@ -272,13 +272,20 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
                 style={{ width: `${Math.min(100, (assignedSafety.length / requirements.safety) * 100)}%` }}
               ></div>
             </div>
-            <span className={`text-base font-black transition-all ${
-              assignedSafety.length > requirements.safety 
-              ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
-              : 'text-blue-600'
-            }`}>
-              {assignedSafety.length} / {requirements.safety}
-            </span>
+            <div className="flex flex-col items-end">
+              <span className={`text-base font-black transition-all ${
+                assignedSafety.length >= requirements.safety 
+                ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
+                : 'text-blue-600'
+              }`}>
+                {assignedSafety.length} / {requirements.safety}
+              </span>
+              {requirements.proxyReq > 0 && (
+                <span className="text-[10px] text-blue-500 font-bold mt-1">
+                  (원도급 {requirements.mainSafetyReq} + 대리 {requirements.proxyReq})
+                </span>
+              )}
+            </div>
           </div>
 
           {/* 경력직(Senior) 배치 현황 추가 */}

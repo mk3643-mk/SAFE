@@ -75,9 +75,11 @@ export const useStore = create((set, get) => ({
     const processedSites = (data.sites || INITIAL_SITES).map(site => ({
       ...site,
       status: site.status || 'APPROVED',
-      // 레거시 필드 마이그레이션
-      subDirectAmt: site.subDirectAmt !== undefined ? site.subDirectAmt : (site.isSubProxy ? 0 : site.subAmt || 0),
-      subProxyAmt: site.subProxyAmt !== undefined ? site.subProxyAmt : (site.isSubProxy ? site.subAmt || 0 : 0)
+      // 레거시 필드 마이그레이션 (더욱 정교화)
+      subDirectAmt: site.subDirectAmt !== undefined ? site.subDirectAmt : 
+        (site.subAppointmentType === 'DIRECT' || site.isSubProxy === false ? site.subAmt || 0 : 0),
+      subProxyAmt: site.subProxyAmt !== undefined ? site.subProxyAmt : 
+        (site.subAppointmentType === 'PROXY' || site.isSubProxy === true ? site.subAmt || 0 : 0)
     }));
     
     set({

@@ -348,18 +348,18 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
               {/* 근무 이력 보기 */}
               {staff.workHistory && staff.workHistory.length > 0 && (
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase mb-2">근무 이력</p>
-                  <div className="space-y-2">
+                  <p className="text-xs font-bold text-gray-400 uppercase mb-3">근무 이력</p>
+                  <div className="bg-gray-50/50 rounded-2xl border border-gray-100 overflow-hidden">
                     {staff.workHistory.map((history, idx) => (
-                      <div key={idx} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold ${history.type === 'OUR' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-600'}`}>
-                            {history.type === 'OUR' ? '당사' : '타사'}
-                          </span>
-                          <span className="text-[9px] font-black text-blue-600">{history.duration}</span>
+                      <div key={idx} className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                        <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold whitespace-nowrap flex-shrink-0 ${history.type === 'OUR' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-600'}`}>
+                          {history.type === 'OUR' ? '당사' : '타사'}
+                        </span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <p className="text-sm font-bold text-gray-800 truncate leading-tight mb-0.5">{history.siteName}</p>
+                          <p className="text-[9px] text-gray-400 font-medium">{history.startDate} ~ {history.endDate}</p>
                         </div>
-                        <p className="text-xs font-bold text-gray-800 truncate">{history.siteName}</p>
-                        <p className="text-[10px] text-gray-500 mt-0.5 leading-none">{history.startDate} ~ {history.endDate}</p>
+                        <span className="text-xs font-black text-blue-600 whitespace-nowrap flex-shrink-0 ml-2">{history.duration}</span>
                       </div>
                     ))}
                   </div>

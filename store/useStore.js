@@ -82,10 +82,11 @@ export const useStore = create((set, get) => ({
         ((site.subAppointmentType === 'PROXY' || site.isSubProxy === true || (site.name.includes('을지로') && site.isSubProxy)) ? site.subAmt || 0 : 0)
     }));
 
-    // 을지로 3가 12지구 특별 보정 (사용자 요청 현장)
+    // 특정 현장 특별 보정 (사용자 요청 기반)
     const finalizedSites = processedSites.map(s => {
-      if (s.name.includes('을지로 3가 12지구') && s.subProxyAmt === 0) {
-        return { ...s, subProxyAmt: 156, subDirectAmt: 0, subAppointmentType: 'PROXY' };
+      // 을지로 3가 12지구 및 파주운정 관련 현장 (대리선임 케이스)
+      if ((s.name.includes('을지로') || s.name.includes('파주운정')) && s.subProxyAmt === 0 && s.subAmt > 0) {
+        return { ...s, subProxyAmt: s.subAmt, subDirectAmt: 0, subAppointmentType: 'PROXY' };
       }
       return s;
     });

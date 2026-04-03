@@ -10,8 +10,8 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     region: '서울권',
     type: 'ARCH',
     totalAmount: 0,
-    subAmt: 0,
-    subAppointmentType: 'NONE',
+    subDirectAmt: 0,
+    subProxyAmt: 0,
     demoStartDate: '',
     demoEndDate: '',
     mainStartDate: '2026-03-01',
@@ -27,7 +27,8 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
     addSite({
       ...formData,
       totalAmount: Number(formData.totalAmount),
-      subAmt: Number(formData.subAmt)
+      subDirectAmt: Number(formData.subDirectAmt || 0),
+      subProxyAmt: Number(formData.subProxyAmt || 0)
     });
     onClose();
     setFormData({
@@ -140,43 +141,47 @@ export default function SiteRegistrationModal({ isOpen, onClose }) {
               />
             </div>
 
-            <div className="md:col-span-full bg-blue-50/30 p-6 rounded-2xl border border-blue-100/50 space-y-4">
-              <label className="block text-sm font-bold text-gray-700">협력사(수급인) 선임 방식</label>
-              <div className="flex gap-2">
-                {[
-                  { id: 'NONE', label: '대상 없음' },
-                  { id: 'DIRECT', label: '협력사 직접' },
-                  { id: 'PROXY', label: '원도급 대리' }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, subAppointmentType: item.id })}
-                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
-                      formData.subAppointmentType === item.id 
-                      ? 'bg-blue-600 text-white shadow-md' 
-                      : 'bg-white text-gray-500 border border-gray-100 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-              
-              {formData.subAppointmentType !== 'NONE' && (
-                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                  <label className="block text-xs font-bold text-gray-500 mb-2">협력사 공사 금액 합계 (억 원)</label>
-                  <input
-                    required
-                    type="number"
-                    placeholder="0"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-white font-bold"
-                    value={formData.subAmt}
-                    onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
-                  />
-                  <p className="text-[10px] text-blue-600 mt-2 font-bold">* 입력하신 금액에 따라 협력사 안전관리자 선임 의무가 자동으로 계산됩니다.</p>
+            <div className="md:col-span-full border-t border-gray-100 pt-6">
+              <div className="bg-blue-50/30 p-6 rounded-[32px] border border-blue-100/50 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-4 bg-blue-600 rounded-full"></div>
+                  <h4 className="text-sm font-black text-gray-900 leading-none">협력사(수급인) 관리자 선임 정보</h4>
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-black text-gray-500 ml-1">협력사 직접 선임 금액 합계 (억 원)</label>
+                    <input
+                      type="number"
+                      placeholder="대상 금액 입력 (없으면 0)"
+                      className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white font-bold text-sm shadow-sm"
+                      value={formData.subDirectAmt || 0}
+                      onChange={(e) => setFormData({ ...formData, subDirectAmt: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-xs font-black text-gray-500 ml-1">원도급 대리 선임 금액 합계 (억 원)</label>
+                    <input
+                      type="number"
+                      placeholder="대상 금액 입력 (없으면 0)"
+                      className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none bg-white font-bold text-sm shadow-sm"
+                      value={formData.subProxyAmt || 0}
+                      onChange={(e) => setFormData({ ...formData, subProxyAmt: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-white/60 p-4 rounded-2xl border border-blue-100 flex items-start gap-3">
+                  <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-[11px] text-blue-700 font-bold leading-relaxed">
+                    * 원도급 대리 선임 시 2개 이상의 협력사를 대리하는 경우에는 해당 협력사들의 공사금액 합계를 입력해 주세요.<br />
+                    * 직접 선임과 대리 선임이 동시에 발생하는 경우 각각의 합계 금액을 모두 입력해 주시기 바랍니다.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="col-span-full border-t border-gray-100 pt-6">

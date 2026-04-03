@@ -10,8 +10,8 @@ export default function MobileSiteJoinPage() {
     region: '서울권',
     type: 'ARCH',
     totalAmount: '',
-    subAmt: 0,
-    subAppointmentType: 'NONE',
+    subDirectAmt: 0,
+    subProxyAmt: 0,
     demoStartDate: '',
     demoEndDate: '',
     mainStartDate: '2026-03-01',
@@ -26,7 +26,8 @@ export default function MobileSiteJoinPage() {
     addSite({
       ...formData,
       totalAmount: Number(formData.totalAmount),
-      subAmt: Number(formData.subAmt),
+      subDirectAmt: Number(formData.subDirectAmt || 0),
+      subProxyAmt: Number(formData.subProxyAmt || 0),
       status: 'PENDING' // QR 등록은 승인대기 상태로 저장
     });
     setIsSubmitted(true);
@@ -108,42 +109,44 @@ export default function MobileSiteJoinPage() {
               <input required type="number" placeholder="0" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-900 outline-none transition-all" value={formData.totalAmount} onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })} />
             </div>
 
-            <div className="p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100/50 space-y-4 shadow-inner">
-              <label className="block text-sm font-black text-gray-500">협력사(수급인) 선임 방식</label>
-              <div className="flex gap-2">
-                {[
-                  { id: 'NONE', label: '대상 없음' },
-                  { id: 'DIRECT', label: '협력사 직접' },
-                  { id: 'PROXY', label: '원도급 대리' }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, subAppointmentType: item.id })}
-                    className={`flex-1 py-3 rounded-xl text-[10px] font-black transition-all ${
-                      formData.subAppointmentType === item.id 
-                      ? 'bg-indigo-600 text-white shadow-lg' 
-                      : 'bg-white text-gray-400 border border-indigo-100/50'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+            <div className="bg-indigo-50/50 p-6 rounded-[32px] border border-indigo-100/50 space-y-6 shadow-inner mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-3 bg-indigo-600 rounded-full"></div>
+                <label className="text-sm font-black text-gray-900 leading-none">협력사(수급인) 선임 금액</label>
               </div>
-              
-              {formData.subAppointmentType !== 'NONE' && (
-                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                  <label className="block text-[10px] font-black text-indigo-400 mb-1.5 ml-1">협력사 공사 금액 합계 (억 원)</label>
+
+              <div className="grid grid-cols-1 gap-5">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-indigo-400 ml-1">협력사 직접 선임 합계 (억)</label>
                   <input
-                    required
                     type="number"
-                    placeholder="0"
+                    placeholder="대상 금액 (없으면 0)"
                     className="w-full px-5 py-4 rounded-2xl bg-white border-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-900 outline-none shadow-sm"
-                    value={formData.subAmt}
-                    onChange={(e) => setFormData({ ...formData, subAmt: e.target.value })}
+                    value={formData.subDirectAmt}
+                    onChange={(e) => setFormData({ ...formData, subDirectAmt: e.target.value })}
                   />
                 </div>
-              )}
+
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-indigo-400 ml-1">원도급 대리 선임 합계 (억)</label>
+                  <input
+                    type="number"
+                    placeholder="대상 금액 (없으면 0)"
+                    className="w-full px-5 py-4 rounded-2xl bg-white border-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-900 outline-none shadow-sm"
+                    value={formData.subProxyAmt}
+                    onChange={(e) => setFormData({ ...formData, subProxyAmt: e.target.value })}
+                  />
+                </div>
+
+                <div className="p-4 bg-white/80 rounded-2xl border border-indigo-100 flex items-start gap-2.5 shadow-sm">
+                  <svg className="w-4 h-4 text-indigo-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-[10px] text-indigo-600 font-black leading-relaxed">
+                    * 대리 선임 시 2개 이상의 협력사가 있다면 해당 협력사들의 공사금액 합계를 입력해주세요.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

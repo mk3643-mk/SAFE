@@ -25,7 +25,8 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
     updateSite(site.id, {
       ...formData,
       totalAmount: Number(formData.totalAmount),
-      subAmt: Number(formData.subAmt || 0)
+      subDirectAmt: Number(formData.subDirectAmt || 0),
+      subProxyAmt: Number(formData.subProxyAmt || 0)
     });
     setIsEditing(false);
   };
@@ -138,19 +139,38 @@ export default function SiteDetailModal({ isOpen, onClose, site, hrPool }) {
                   </div>
                 )}
               </div>
-              <div className="col-span-full bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                <label className="block text-xs font-bold text-blue-900 mb-2">협력사(수급인) 선임 방식</label>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'NONE', subAmt: 0})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'NONE' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>대상 없음</button>
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'DIRECT'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'DIRECT' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>협력사 직접</button>
-                  <button type="button" onClick={() => setFormData({...formData, subAppointmentType: 'PROXY'})} className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border ${formData.subAppointmentType === 'PROXY' ? 'bg-white border-blue-500 text-blue-700 shadow-sm' : 'bg-transparent border-blue-200 text-blue-400'}`}>원도급 대리</button>
+              <div className="col-span-full bg-blue-50/50 p-5 rounded-2xl border border-blue-100 space-y-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-3 bg-blue-600 rounded-full"></div>
+                  <label className="block text-xs font-black text-blue-900">협력사(수급인) 선임 금액 설정</label>
                 </div>
-                {formData.subAppointmentType !== 'NONE' && (
-                  <div className="mt-3">
-                    <label className="block text-[10px] font-bold text-blue-800 mb-1">협력사 공사 금액 합계 (억 원)</label>
-                    <input type="number" className="w-full px-3 py-1.5 border border-blue-200 rounded-lg text-sm" value={formData.subAmt || ''} onChange={e => setFormData({...formData, subAmt: e.target.value})} />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-blue-800 ml-1">협력사 직접 선임 합계 (억)</label>
+                    <input 
+                      type="number" 
+                      className="w-full px-3 py-2 border border-blue-200 rounded-xl text-sm bg-white font-bold" 
+                      value={formData.subDirectAmt || 0} 
+                      onChange={e => setFormData({...formData, subDirectAmt: e.target.value})} 
+                    />
                   </div>
-                )}
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-indigo-800 ml-1">원도급 대리 선임 합계 (억)</label>
+                    <input 
+                      type="number" 
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-xl text-sm bg-white font-bold" 
+                      value={formData.subProxyAmt || 0} 
+                      onChange={e => setFormData({...formData, subProxyAmt: e.target.value})} 
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white/50 rounded-xl border border-blue-100/50">
+                  <p className="text-[10px] text-blue-600 leading-relaxed font-bold">
+                    * 대리 선임 시 2개 이상의 협력사가 포함된 경우 모든 대상 협력사의 공사금액 합계를 입력하세요.
+                  </p>
+                </div>
               </div>
             </form>
           ) : (

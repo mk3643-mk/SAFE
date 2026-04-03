@@ -47,14 +47,14 @@ const INITIAL_HR_POOL = [
 ];
 
 const INITIAL_SITES = [
-  { id: 'S1', name: '을지로4가 오피스(13지구)', region: '서울권', type: 'ARCH', totalAmount: 1321, subAmt: 0, isSubProxy: false, startDate: '2026-01-01', endDate: '2026-12-31', managerName: '유준석' },
-  { id: 'S2', name: '을지로(15지구)', region: '서울권', type: 'ARCH', totalAmount: 1024, subAmt: 0, isSubProxy: false, startDate: '2025-10-01', endDate: '2027-06-30', managerName: '김덕배' },
-  { id: 'S3', name: '파주운정6차', region: '경기권', type: 'ARCH', totalAmount: 1118, subAmt: 0, isSubProxy: false, startDate: '2024-05-10', endDate: '2026-10-15', managerName: '성창용' },
-  { id: 'S4', name: '고양풍동', region: '경기권', type: 'ARCH', totalAmount: 1388, subAmt: 0, isSubProxy: false, startDate: '2025-01-20', endDate: '2028-03-20', managerName: '김민수' },
-  { id: 'S5', name: '김포북변 재개발', region: '경기권', type: 'ARCH', totalAmount: 2454, subAmt: 220, isSubProxy: true, startDate: '2025-03-01', endDate: '2027-11-10', managerName: '이강인' },
-  { id: 'S6', name: '남원주역세권1차', region: '강원권', type: 'ARCH', totalAmount: 2458, subAmt: 0, isSubProxy: false, startDate: '2024-08-15', endDate: '2026-08-15', managerName: '안정환' },
-  { id: 'S7', name: '울산다운1차', region: '영남권', type: 'ARCH', totalAmount: 3255, subAmt: 310, isSubProxy: true, startDate: '2025-05-22', endDate: '2028-05-22', managerName: '박지성' },
-  { id: 'S8', name: '광주운암산3단지', region: '호남권', type: 'ARCH', totalAmount: 2493, subAmt: 0, isSubProxy: false, startDate: '2024-10-01', endDate: '2027-09-30', managerName: '손흥민' },
+  { id: 'S1', name: '을지로4가 오피스(13지구)', region: '서울권', type: 'ARCH', totalAmount: 1321, subDirectAmt: 0, subProxyAmt: 0, startDate: '2026-01-01', endDate: '2026-12-31', managerName: '유준석' },
+  { id: 'S2', name: '을지로(15지구)', region: '서울권', type: 'ARCH', totalAmount: 1024, subDirectAmt: 0, subProxyAmt: 0, startDate: '2025-10-01', endDate: '2027-06-30', managerName: '김덕배' },
+  { id: 'S3', name: '파주운정6차', region: '경기권', type: 'ARCH', totalAmount: 1118, subDirectAmt: 0, subProxyAmt: 0, startDate: '2024-05-10', endDate: '2026-10-15', managerName: '성창용' },
+  { id: 'S4', name: '고양풍동', region: '경기권', type: 'ARCH', totalAmount: 1388, subDirectAmt: 0, subProxyAmt: 0, startDate: '2025-01-20', endDate: '2028-03-20', managerName: '김민수' },
+  { id: 'S5', name: '김포북변 재개발', region: '경기권', type: 'ARCH', totalAmount: 2454, subDirectAmt: 0, subProxyAmt: 220, startDate: '2025-03-01', endDate: '2027-11-10', managerName: '이강인' },
+  { id: 'S6', name: '남원주역세권1차', region: '강원권', type: 'ARCH', totalAmount: 2458, subDirectAmt: 0, subProxyAmt: 0, startDate: '2024-08-15', endDate: '2026-08-15', managerName: '안정환' },
+  { id: 'S7', name: '울산다운1차', region: '영남권', type: 'ARCH', totalAmount: 3255, subDirectAmt: 0, subProxyAmt: 310, startDate: '2025-05-22', endDate: '2028-05-22', managerName: '박지성' },
+  { id: 'S8', name: '광주운암산3단지', region: '호남권', type: 'ARCH', totalAmount: 2493, subDirectAmt: 0, subProxyAmt: 0, startDate: '2024-10-01', endDate: '2027-09-30', managerName: '손흥민' },
 ];
 
 export const useStore = create((set, get) => ({
@@ -74,7 +74,10 @@ export const useStore = create((set, get) => ({
     
     const processedSites = (data.sites || INITIAL_SITES).map(site => ({
       ...site,
-      status: site.status || 'APPROVED'
+      status: site.status || 'APPROVED',
+      // 레거시 필드 마이그레이션
+      subDirectAmt: site.subDirectAmt !== undefined ? site.subDirectAmt : (site.isSubProxy ? 0 : site.subAmt || 0),
+      subProxyAmt: site.subProxyAmt !== undefined ? site.subProxyAmt : (site.isSubProxy ? site.subAmt || 0 : 0)
     }));
     
     set({

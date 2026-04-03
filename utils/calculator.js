@@ -2,17 +2,14 @@
  * 사용자가 제공한 상세 안전/보건관리자 배치(선임) 기준 반영
  */
 export const calculateRequiredStaff = (site) => {
-  const { totalAmount, subAmt, isSubProxy, type, isDemolition, startDate, endDate } = site;
+  const { totalAmount, type, startDate, endDate } = site;
   
-  // 0. 기본 변수 및 기간 설정
-  const today = new Date(); // 시스템 기준일 (현재 실시간 날짜)
-  
+  const today = new Date(); 
   const demoStart = site.demoStartDate ? new Date(site.demoStartDate) : null;
   const demoEnd = site.demoEndDate ? new Date(site.demoEndDate) : null;
   const mainStart = site.mainStartDate ? new Date(site.mainStartDate) : new Date(startDate || '2026-01-01');
   const mainEnd = site.mainEndDate ? new Date(site.mainEndDate) : new Date(endDate || '2026-12-31');
 
-  // 현재 어느 단계에 있는지 판단
   let currentPhase = 'NONE';
   let isReducedPhase = false;
   let phaseLabel = '공사 전/후';
@@ -20,18 +17,15 @@ export const calculateRequiredStaff = (site) => {
   if (demoStart && demoEnd && today >= demoStart && today <= demoEnd) {
     currentPhase = 'DEMOLITION';
     phaseLabel = '철거 공사';
-    isReducedPhase = true; // 철거 기간은 무조건 50% 감면
+    isReducedPhase = true;
   } else if (today >= mainStart && today <= mainEnd) {
     currentPhase = 'MAIN';
     phaseLabel = '본 공사';
-    
     const mainTotalDays = Math.max(1, (mainEnd - mainStart) / (1000 * 60 * 60 * 24));
     const mainElapsedDays = Math.max(0, (today - mainStart) / (1000 * 60 * 60 * 24));
     const mainRemainingDays = Math.max(0, (mainEnd - today) / (1000 * 60 * 60 * 24));
-    
     const isInitial15 = mainElapsedDays <= mainTotalDays * 0.15;
     const isFinal15 = mainRemainingDays <= mainTotalDays * 0.15;
-    
     if (isInitial15 || isFinal15) {
       isReducedPhase = true;
       phaseLabel = isInitial15 ? '본공사 초기 (15%)' : '본공사 말기 (15%)';
@@ -40,58 +34,48 @@ export const calculateRequiredStaff = (site) => {
     }
   }
 
-  // 15% 시점 날짜 계산 (본공사 기준)
   const mainTotalDays = Math.max(1, (mainEnd - mainStart) / (1000 * 60 * 60 * 24));
   const fifteenPercentMs = mainTotalDays * 0.15 * 24 * 60 * 60 * 1000;
   const initialPhaseEnd = new Date(mainStart.getTime() + fifteenPercentMs);
   const finalPhaseStart = new Date(mainEnd.getTime() - fifteenPercentMs);
 
-  // 6, 7, 8번 기준: 수급인 공사 금액 차감 로직
-  // 수급인이 직접 선임하든 원도급사가 대리 선임하든, 원도급사 기준 금액에서는 해당 금액을 제외함
-  const subAmtVal = Number(subAmt || 0);
-  const netAmt = (subAmtVal > 0) ? totalAmount - subAmtVal : totalAmount;
-  const subAppointmentType = site.subAppointmentType || (site.isSubProxy ? 'PROXY' : 'NONE');
+  const subDirectAmtVal = Number(site.subDirectAmt || 0);
+  const subProxyAmtVal = Number(site.subProxyAmt || 0);
+  const totalSubAmt = subDirectAmtVal + subProxyAmtVal;
+  const netAmt = (totalSubAmt > 0) ? totalAmount - totalSubAmt : totalAmount;
 
   let safetyReq = 0;
   let seniorReq = 0;
 
-  // 1 & 2. 공사 종류별 안전관리자 기본 인원 산정
-  if (type === 'ARCH') { // 건축현장
+  if (type === 'ARCH') {
     if (netAmt >= 3900) { safetyReq = 6; seniorReq = 2; }
     else if (netAmt >= 3000) { safetyReq = 5; seniorReq = 2; }
     else if (netAmt >= 2200) { safetyReq = 4; seniorReq = 1; }
     else if (netAmt >= 1500) { safetyReq = 3; seniorReq = 1; }
     else if (netAmt >= 800) { safetyReq = 2; seniorReq = 0; }
     else if (netAmt >= 120) { safetyReq = 1; seniorReq = 0; }
-  } else { // 토목현장
-    if (netAmt >= 800) { safetyReq = 2; seniorReq = 0; }
-    else if (netAmt >= 150) { safetyReq = 1; seniorReq = 0; }
-    // 토목현장 1,500억 이상 예시는 사용자 설명에 "3명 (7년 이상 경력자 1명 반드시 포함)"으로 되어 있음
+  } else {
     if (netAmt >= 1500) { safetyReq = 3; seniorReq = 1; }
+    else if (netAmt >= 800) { safetyReq = 2; seniorReq = 0; }
+    else if (netAmt >= 150) { safetyReq = 1; seniorReq = 0; }
   }
 
-  // 50% 인원 감면 적용 (철거공사 기간 또는 본공사 전후 15%)
   if (isReducedPhase) {
     safetyReq = Math.max(1, Math.ceil(safetyReq * 0.5));
-    
-    // 본공사 15% 기간은 경력자 필수 포함 로직 적용
     if (currentPhase === 'MAIN') {
       if (netAmt >= 1500 && netAmt < 3000) seniorReq = 1;
       else if (netAmt >= 3000) seniorReq = 1;
     } else if (currentPhase === 'DEMOLITION') {
-      // 철거 기간은 경력자 요건도 50% 감면 (사용자 요건: 50%만 배치)
       seniorReq = Math.max(0, Math.floor(seniorReq * 0.5));
     }
   }
 
-  // 8번 기준: 대리 선임 시 협력사 1명분을 가산
   let proxyReq = 0;
-  if (subAppointmentType === 'PROXY') {
+  if (subProxyAmtVal > 0) {
     proxyReq = 1;
     safetyReq += proxyReq;
   }
 
-  // 보건관리자 기준
   let healthReq = 0;
   if (type === 'ARCH' && totalAmount >= 800) healthReq = 1;
   else if (type === 'CIVIL' && totalAmount >= 1000) healthReq = 1;
@@ -100,15 +84,14 @@ export const calculateRequiredStaff = (site) => {
     safety: safetyReq,
     health: healthReq,
     senior: seniorReq,
-    senior: seniorReq,
     isReducedPhase,
     currentPhase,
     phaseLabel,
     initialPhaseEnd: initialPhaseEnd.toISOString().split('T')[0],
     finalPhaseStart: finalPhaseStart.toISOString().split('T')[0],
-    mainSafetyReq: safetyReq - proxyReq, // 원도급사 본분
-    proxyReq: proxyReq, // 대리 선임분
-    netAmt: netAmt
+    mainSafetyReq: safetyReq - proxyReq,
+    proxyReq,
+    netAmt
   };
 };
 

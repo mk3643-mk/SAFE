@@ -158,7 +158,7 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`bg-white rounded-3xl shadow-sm border ${isDragging ? 'border-blue-500 shadow-xl scale-[1.02] opacity-90' : 'border-gray-100'} overflow-hidden hover:shadow-md transition-all`}
+      className={`bg-white rounded-[40px] shadow-md border-2 ${isDragging ? 'border-blue-500 shadow-2xl scale-[1.02] opacity-90' : 'border-gray-200'} overflow-hidden hover:shadow-xl hover:border-blue-200 transition-all`}
     >
       <div className="p-8 border-b border-gray-50 flex justify-between items-start group">
         <div className="flex gap-4">

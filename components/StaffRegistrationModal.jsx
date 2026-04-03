@@ -19,6 +19,9 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
     photo: null,
     birthDate: '',
     age: 0,
+    university: '',
+    major: '',
+    maritalStatus: 'SINGLE',
     workHistory: []
   });
 
@@ -102,6 +105,9 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       licenseType: formData.licenseType,
       photo: formData.photo,
       careerStartDate: formData.careerStartDate,
+      university: formData.university,
+      major: formData.major,
+      maritalStatus: formData.maritalStatus,
       workHistory: formData.workHistory
     });
     
@@ -119,6 +125,9 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
       empType: 'REGULAR',
       licenseType: 'SAFETY',
       photo: null,
+      university: '',
+      major: '',
+      maritalStatus: 'SINGLE',
       workHistory: []
     });
   };
@@ -234,15 +243,63 @@ export default function StaffRegistrationModal({ isOpen, onClose }) {
               />
             </div>
 
-            <div className="col-span-full">
-              <label className="block text-sm font-bold text-gray-700 mb-2">거주지</label>
-              <input
-                type="text"
-                placeholder="예: 서울시 강남구 역삼동"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
-                value={formData.residence}
-                onChange={(e) => setFormData({ ...formData, residence: e.target.value })}
-              />
+            <div className="col-span-full grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">대학교</label>
+                <input
+                  type="text"
+                  placeholder="대학교명 입력"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  value={formData.university}
+                  onChange={(e) => setFormData({ ...formData, university: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">전공</label>
+                <input
+                  type="text"
+                  placeholder="전공 입력"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  value={formData.major}
+                  onChange={(e) => setFormData({ ...formData, major: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="col-span-full grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">거주지</label>
+                <input
+                  type="text"
+                  placeholder="예: 서울시 강남구 역삼동"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  value={formData.residence}
+                  onChange={(e) => setFormData({ ...formData, residence: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">혼인 여부</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, maritalStatus: 'SINGLE' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.maritalStatus === 'SINGLE' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    미혼
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, maritalStatus: 'MARRIED' })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+                      formData.maritalStatus === 'MARRIED' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    기혼
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="col-span-full grid grid-cols-2 gap-4">

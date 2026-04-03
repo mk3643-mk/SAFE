@@ -19,6 +19,9 @@ export default function MobileJoinPage() {
     photo: null,
     birthDate: '',
     age: 0,
+    university: '',
+    major: '',
+    maritalStatus: 'SINGLE',
     workHistory: []
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -184,9 +187,32 @@ export default function MobileJoinPage() {
               <input required type="text" placeholder="010-1234-5678" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
             </div>
 
-            <div>
-              <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">거주지</label>
-              <input required type="text" placeholder="예: 서울시 강남구 역삼동" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.residence} onChange={(e) => setFormData({ ...formData, residence: e.target.value })} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">대학교</label>
+                <input type="text" placeholder="대학교명" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.university} onChange={(e) => setFormData({ ...formData, university: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">전공</label>
+                <input type="text" placeholder="전공명" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.major} onChange={(e) => setFormData({ ...formData, major: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">혼인 여부</label>
+                <div className="flex gap-2">
+                  {['SINGLE', 'MARRIED'].map(status => (
+                    <button key={status} type="button" onClick={() => setFormData({ ...formData, maritalStatus: status })} className={`flex-1 py-4 rounded-2xl font-black text-xs transition-all ${formData.maritalStatus === status ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-100 text-gray-400'}`}>
+                      {status === 'SINGLE' ? '미혼' : '기혼'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-black text-gray-400 mb-1.5 ml-1">거주지</label>
+                <input required type="text" placeholder="예: 서울시 강남구" className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-900 outline-none transition-all" value={formData.residence} onChange={(e) => setFormData({ ...formData, residence: e.target.value })} />
+              </div>
             </div>
 
             <div>

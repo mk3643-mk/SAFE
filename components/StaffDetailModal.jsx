@@ -216,6 +216,24 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                   <label className="block text-xs font-bold text-gray-700 mb-1">연락처</label>
                   <input type="text" className="w-full px-3 py-2 border rounded-xl" value={formData.phone || ''} onChange={e => setFormData({...formData, phone: e.target.value})} />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">혼인 여부</label>
+                  <select className="w-full px-3 py-2 border rounded-xl" value={formData.maritalStatus || 'SINGLE'} onChange={e => setFormData({...formData, maritalStatus: e.target.value})}>
+                    <option value="SINGLE">미혼</option>
+                    <option value="MARRIED">기혼</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">대학교</label>
+                  <input type="text" className="w-full px-3 py-2 border rounded-xl" value={formData.university || ''} onChange={e => setFormData({...formData, university: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">전공</label>
+                  <input type="text" className="w-full px-3 py-2 border rounded-xl" value={formData.major || ''} onChange={e => setFormData({...formData, major: e.target.value})} />
+                </div>
               </div>
 
               <div>
@@ -314,15 +332,37 @@ export default function StaffDetailModal({ isOpen, onClose, staff, sites }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="bg-gray-50 p-3 rounded-xl">
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">연락처</p>
                   <p className="text-sm font-bold text-gray-900">{staff.phone || '-'}</p>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-xl">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">거주지</p>
-                  <p className="text-sm font-bold text-gray-900">{staff.residence || '-'}</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">혼인 여부</p>
+                  <p className="text-sm font-bold text-gray-900">{staff.maritalStatus === 'MARRIED' ? '기혼' : '미혼'}</p>
                 </div>
+                <div className="bg-gray-50 p-3 rounded-xl text-center">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">현재 상태</p>
+                  <p className={`text-sm font-black ${staff.assignedSiteId ? 'text-blue-600' : 'text-emerald-600'}`}>
+                    {staff.assignedSiteId ? '배치중' : '배치가능'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">대학교</p>
+                  <p className="text-sm font-bold text-gray-900">{staff.university || '-'}</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-xl">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">전공</p>
+                  <p className="text-sm font-bold text-gray-900">{staff.major || '-'}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-xl">
+                <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">거주지</p>
+                <p className="text-sm font-bold text-gray-900">{staff.residence || '-'}</p>
               </div>
 
               <div>

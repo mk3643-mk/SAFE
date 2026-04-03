@@ -582,18 +582,21 @@ export default function SiteDashboard() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {/* 안전관리자 배치기준 열람/업로드 영역 */}
           <div className="flex gap-2 relative">
             {safetyStandardsPdf && (
               <button 
                 onClick={() => setPdfModal({ open: true, data: safetyStandardsPdf, title: '안전관리자 배치기준 열람' })}
-                className="group flex items-center gap-2 bg-blue-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-95"
+                className="group flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-2xl font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-95"
               >
                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span>배치기준 열람 (PDF)</span>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-xs font-black">배치기준 열람</span>
+                  <span className="text-[10px] opacity-80">(PDF)</span>
+                </div>
               </button>
             )}
 
@@ -607,10 +610,10 @@ export default function SiteDashboard() {
                 value=""
               />
               <button 
-                className={`group flex items-center gap-2 ${safetyStandardsPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-blue-500 hover:shadow-md transition-all active:scale-95`}
+                className={`group flex items-center gap-2 ${safetyStandardsPdf ? 'bg-white text-gray-600 px-3 py-3 border-gray-200' : 'bg-white text-gray-900 px-5 py-3 border-gray-100'} rounded-2xl font-bold border hover:border-blue-500 hover:shadow-md transition-all active:scale-95`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${safetyStandardsPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-blue-50' : 'bg-blue-600 text-white group-hover:scale-110'}`}>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform ${safetyStandardsPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-blue-50' : 'bg-blue-600 text-white group-hover:scale-110'}`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {safetyStandardsPdf 
                       ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />}
@@ -626,13 +629,16 @@ export default function SiteDashboard() {
             {siteDirectoryPdf && (
               <button 
                 onClick={() => setPdfModal({ open: true, data: siteDirectoryPdf, title: '현장 주소록 열람' })}
-                className="group flex items-center gap-2 bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-95"
+                className="group flex items-center gap-2 bg-emerald-600 text-white px-5 py-3 rounded-2xl font-bold shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all active:scale-95"
               >
                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span>주소록 열람 (PDF)</span>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-xs font-black">주소록 열람</span>
+                  <span className="text-[10px] opacity-80">(PDF)</span>
+                </div>
               </button>
             )}
 
@@ -646,10 +652,10 @@ export default function SiteDashboard() {
                 value=""
               />
               <button 
-                className={`group flex items-center gap-2 ${siteDirectoryPdf ? 'bg-white text-gray-600 px-4 py-4 border-gray-200' : 'bg-white text-gray-900 px-6 py-4 border-gray-100'} rounded-2xl font-bold border hover:border-emerald-500 hover:shadow-md transition-all active:scale-95`}
+                className={`group flex items-center gap-2 ${siteDirectoryPdf ? 'bg-white text-gray-600 px-3 py-3 border-gray-200' : 'bg-white text-gray-900 px-5 py-3 border-gray-100'} rounded-2xl font-bold border hover:border-emerald-500 hover:shadow-md transition-all active:scale-95`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-transform ${siteDirectoryPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50' : 'bg-emerald-600 text-white group-hover:scale-110'}`}>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-transform ${siteDirectoryPdf ? 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50' : 'bg-emerald-600 text-white group-hover:scale-110'}`}>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {siteDirectoryPdf 
                       ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />}
@@ -663,28 +669,34 @@ export default function SiteDashboard() {
           {/* 큐알 등록 버튼 */}
           <button 
             onClick={() => setIsQrModalOpen(true)}
-            className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-indigo-500 hover:shadow-md transition-all active:scale-95"
+            className="group flex items-center gap-2 bg-white text-gray-900 px-5 py-3 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-indigo-500 hover:shadow-md transition-all active:scale-95"
             title="모바일 사이트로 현장 등록용 QR코드 열기"
           >
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M5 8V7a3 3 0 013-3h10a3 3 0 013 3v1" />
               </svg>
             </div>
-            <span>현장 등록 QR</span>
+            <div className="flex flex-col items-start leading-none">
+              <span className="text-xs font-black">현장 등록</span>
+              <span className="text-[10px] opacity-60">QR 코드</span>
+            </div>
           </button>
 
           {/* 신규 등록 버튼 */}
           <button 
             onClick={() => setIsRegModalOpen(true)}
-            className="group flex items-center gap-2 bg-white text-gray-900 px-6 py-4 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-blue-500 hover:shadow-md transition-all active:scale-95"
+            className="group flex items-center gap-2 bg-white text-gray-900 px-5 py-3 rounded-2xl font-bold shadow-sm border border-gray-100 hover:border-blue-500 hover:shadow-md transition-all active:scale-95"
           >
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
-            <span>현장 개요 신규 등록</span>
+            <div className="flex flex-col items-start leading-none">
+              <span className="text-xs font-black">현장 개요</span>
+              <span className="text-[10px] opacity-60">신규 등록</span>
+            </div>
           </button>
         </div>
       </div>

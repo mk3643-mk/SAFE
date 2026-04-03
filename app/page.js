@@ -133,7 +133,7 @@ export default function Page() {
             </h2>
             <p className="text-gray-500 mt-2 text-lg">
               {activeTab === 'dashboard' 
-                ? '실시간 공사비 기준 법정 인원과 현재 배치 현황을 비교 분석합니다.' 
+                ? '현장별 공사비 기준 법정 배치인원 산정' 
                 : '구성원별 자격사항 및 현재 배치 상태를 통합 관리합니다.'}
             </p>
           </div>

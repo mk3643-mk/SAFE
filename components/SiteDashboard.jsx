@@ -268,11 +268,17 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           <div className="flex items-center gap-3 mb-5">
             <div className="h-3 flex-1 bg-gray-100 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="h-full bg-blue-500 transition-all shadow-[0_0_8px_rgba(59,130,246,0.5)]" 
+                className={`h-full transition-all shadow-[0_0_8px_rgba(59,130,246,0.5)] ${assignedSafety.length > requirements.safety ? 'bg-blue-600 animate-pulse' : 'bg-blue-500'}`} 
                 style={{ width: `${Math.min(100, (assignedSafety.length / requirements.safety) * 100)}%` }}
               ></div>
             </div>
-            <span className="text-base font-black text-blue-600">{assignedSafety.length} / {requirements.safety}</span>
+            <span className={`text-base font-black transition-all ${
+              assignedSafety.length > requirements.safety 
+              ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
+              : 'text-blue-600'
+            }`}>
+              {assignedSafety.length} / {requirements.safety}
+            </span>
           </div>
 
           {/* 경력직(Senior) 배치 현황 추가 */}
@@ -329,11 +335,17 @@ function SortableSiteCard({ site, hrPool, removeSite, handleUnassign, setModal, 
           <div className="flex items-center gap-3 mb-5">
             <div className="h-3 flex-1 bg-gray-100 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="h-full bg-emerald-500 transition-all shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
-                style={{ width: `${(assignedHealth.length / requirements.health) * 100}%` }}
+                className={`h-full transition-all shadow-[0_0_8px_rgba(16,185,129,0.5)] ${assignedHealth.length > requirements.health ? 'bg-blue-600 animate-pulse' : 'bg-emerald-500'}`} 
+                style={{ width: `${Math.min(100, (assignedHealth.length / requirements.health) * 100)}%` }}
               ></div>
             </div>
-            <span className="text-base font-black text-emerald-600">{assignedHealth.length} / {requirements.health}</span>
+            <span className={`text-base font-black transition-all ${
+              assignedHealth.length > requirements.health 
+              ? 'bg-blue-600 text-white px-3 py-1 rounded-full animate-pulse shadow-lg ring-2 ring-blue-300' 
+              : 'text-emerald-600'
+            }`}>
+              {assignedHealth.length} / {requirements.health}
+            </span>
           </div>
           {needHealth > 0 && (
             <div className="bg-red-600 border border-red-700 px-4 py-3.5 rounded-xl mb-5 flex items-center gap-2.5 animate-pulse shadow-lg">
